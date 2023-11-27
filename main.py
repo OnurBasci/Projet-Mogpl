@@ -8,5 +8,5 @@ def graph_question1():
     return my_graph
 
 my_graph = graph_question1()
-my_graph.compute_bellmanford(6,7)
+my_graph.search_bellman_ford(5,None)
 my_graph.show_bellmanford_info()

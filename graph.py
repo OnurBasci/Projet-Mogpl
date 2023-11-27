@@ -2,15 +2,17 @@ import numpy as np
 from copy import deepcopy
 
 class Graph:
-    def __init__(self, vertex_order):
+    def __init__(self, list_vertex):
         # liste des sommets
-        self.vertex_order = vertex_order
+        self.list_vertex = list_vertex
+        # un ordre des sommets 
+        self.vertex_order = None
         # représentation du graph sous forme de listes d'adjacence
-        self.graph = {x : [] for x in self.vertex_order}
+        self.graph = {x : [] for x in self.list_vertex}
         # distances pour l'algorithm de Bellman-Ford
         self.distances = None
         # prédecesseurs pour l'algorithm de Bellman-Ford
-        self.path = None
+        self.paths = None
         # nombre d'itérations pour l'algorithm de Bellman-Ford
         self.nb_iter = 0
         
@@ -23,9 +25,6 @@ class Graph:
     def add_edge_weight(self, u, v, w):
         self.graph[u].append((v, w))
 
-    def add_edges(self, edges):
-        for edge in edges:
-            self.graph[edge[0]] = (edge[1], edge[2])
 
     def generate_random_weights(self):
         pass
@@ -40,47 +39,71 @@ class Graph:
         return liste_precedent
 
     # calcule le plus court chemin entre vertex_start et vertex_end avec l'algorithme de Bellman-Ford
-    def compute_bellmanford(self, vertex_start, vertex_end):
-        self.nb_iter = 0
-        nb_vertices = len(self.vertex_order)
+    def search_bellman_ford(self, source_vertex, vertex_order=None):
+        # si vertex_order n'est pas spécifié, on prend l'ordre de la liste des sommets
+        if vertex_order is None:
+            vertex_order = self.list_vertex
 
+        self.vertex_order = vertex_order
+        # initialisation des variables
+        self.nb_iter = 0
+        nb_vertices = len(vertex_order)
+        # initialisation des distances et des prédecesseurs
         self.distances = np.zeros((nb_vertices-1,nb_vertices))
         self.distances.fill(np.inf)
-        self.distances[:,vertex_start] = 0
+        self.distances[:,source_vertex] = 0
         self.predecessors = np.zeros(self.distances.shape)-1
 
-        for i in range(1, len(self.vertex_order)-1):
-            for vertex in self.vertex_order:
+        # Max itération de l'algorithme de Bellman-Ford
+        for i in range(1, len(vertex_order)-1):
+            # Pour chaque sommet dans l'ordre donné
+            for vertex in vertex_order:
+                # Si le sommet n'est pas encore accessible, on passe
                 if self.distances[i-1,vertex] == np.inf:
                     continue
+                # Sinon, on met à jour les distances pour chaque voisins 
                 for neighbor, weight in self.graph[vertex]:
                     new_distance = self.distances[i-1,vertex] + weight
                     if new_distance < self.distances[i,neighbor]:
+                        # On met à jour la distance du voisin
                         self.distances[i,neighbor] = new_distance
+                        # On met à jour le prédecesseur du voisin
                         self.predecessors[i, neighbor] = vertex
 
             self.nb_iter += 1
-            if self.distances[i,:].all() == self.distances[i-1,:].all():
+            # # Si les distances n'ont pas changé, on arrête l'algorithme
+            if np.array_equal(self.distances[i,:],self.distances[i-1,:]):
                 break
 
-        self.path = self.reconstruct_path(vertex_start,vertex_end)
-        return self.path,self.distances,self.nb_iter
+        self.paths = self.reconstruct_path(source_vertex)
+        return self.paths,self.distances,self.nb_iter
     
-    def reconstruct_path(self, vertex_start,vertex_end):
-        path = [vertex_end]
-        while vertex_end != -1 and vertex_end != vertex_start:
-            vertex_end = int(self.predecessors[-1,vertex_end])
-            if vertex_end != -1:
-                path.append(vertex_end)
-        if vertex_end == -1:
-            path.append(vertex_start)
-        return path[::-1]
+    def reconstruct_path(self, source_vertex):
+        paths = []
+        # Pour chaque sommet
+        for vertex in self.vertex_order:
+            # Si le sommet n'est pas accessible, on passe
+            if self.distances[self.nb_iter,vertex] == np.inf:
+                continue
+            # Sinon, on reconstruit le chemin
+            path = []
+            current_vertex = vertex
+            # Tant qu'on est pas arrivé au sommet de départ
+            while current_vertex != source_vertex:
+                # On ajoute le sommet au chemin
+                path.append(current_vertex)
+                # On récupère le prédecesseur du sommet
+                current_vertex = int(self.predecessors[self.nb_iter,current_vertex])
+            path.append(source_vertex)
+            paths.append(path[::-1])
+        return paths
     
+
     def show_bellmanford_info(self):
         print("nb_iter:")
         print(self.nb_iter)
         print("path:")
-        print(self.path)
+        print(self.paths)
         print("distances:")
         print(self.distances)
 
