@@ -2,44 +2,43 @@ import numpy as np
 from copy import deepcopy
 
 class Graph:
-    def __init__(self, list_vertex):
+    def __init__(self, list_vertex : list):
         # liste des sommets
-        self.list_vertex = list_vertex
+        self.list_vertex : list = list_vertex
         # un ordre des sommets 
-        self.vertex_order = None
+        self.vertex_order : list = None
         # représentation du graph sous forme de listes d'adjacence
-        self.graph = {x : [] for x in self.list_vertex}
+        self.graph : dict = {x : [] for x in self.list_vertex}
         # distances pour l'algorithm de Bellman-Ford
-        self.distances = None
+        self.distances : np.ndarray = None
         # prédecesseurs pour l'algorithm de Bellman-Ford
-        self.paths = None
+        self.paths : list = None
         # nombre d'itérations pour l'algorithm de Bellman-Ford
-        self.nb_iter = 0
+        self.nb_iter :int = 0
         
     # ajoute une liste d'arcs au graph
-    def add_edges(self, liste_arcs):
+    def add_edges(self, liste_arcs : list) -> None:
         for u,v,w in liste_arcs:
-            self.add_edge_weight(u,v,w)
+            self.graph[u].append((v, w))
 
-    # ajoute un arc entre u et v avec un poids w
-    def add_edge_weight(self, u, v, w):
-        self.graph[u].append((v, w))
-
-
+    # génère des poids aléatoires pour les arcs du graph
     def generate_random_weights(self):
         pass
 
     # retourne la liste des prédécesseurs de vertex
-    def get_precedent(self, target_vertex):
-        liste_precedent = []
+    def get_precedent(self, target_vertex : int) -> list:
+        liste_precedent : list = []
+        # Pour chaque sommet
         for vertex in self.graph.keys():
-            for arcs in self.graph[vertex]:
-                if arcs[0] == target_vertex:
-                    liste_precedent.append((vertex,arcs[1]))
+            # Pour chaque arc du sommet
+            for v,w in self.graph[vertex]:
+                # Si l'arc arrive sur le sommet cible, on l'ajoute à la liste des prédecesseurs
+                if v == target_vertex:
+                    liste_precedent.append((vertex,w))
         return liste_precedent
 
     # calcule le plus court chemin entre vertex_start et vertex_end avec l'algorithme de Bellman-Ford
-    def search_bellman_ford(self, source_vertex, vertex_order=None):
+    def search_bellman_ford(self, source_vertex : int , vertex_order : list = None) -> (list,np.ndarray,int):
         # si vertex_order n'est pas spécifié, on prend l'ordre de la liste des sommets
         if vertex_order is None:
             vertex_order = self.list_vertex
@@ -78,15 +77,15 @@ class Graph:
         self.paths = self.reconstruct_path(source_vertex)
         return self.paths,self.distances,self.nb_iter
     
-    def reconstruct_path(self, source_vertex):
-        paths = []
+    def reconstruct_path(self, source_vertex : int ) -> list:
+        paths : list = []
         # Pour chaque sommet
         for vertex in self.vertex_order:
             # Si le sommet n'est pas accessible, on passe
             if self.distances[self.nb_iter,vertex] == np.inf:
                 continue
             # Sinon, on reconstruit le chemin
-            path = []
+            path : list = []
             current_vertex = vertex
             # Tant qu'on est pas arrivé au sommet de départ
             while current_vertex != source_vertex:
@@ -98,8 +97,41 @@ class Graph:
             paths.append(path[::-1])
         return paths
     
+    @staticmethod
+    def unifiy_paths(path : list,path2 : list,path3 : list,list_vertex : list) -> 'Graph':
+        # Initialisation des variables
+        list_edges : list = []
+        added_edges : dict = {}
+        # Fonction qui ajoute un arc au graph si il n'existe pas déjà
+        def add_edge_from_path(path):
+            if len(path) <= 1:
+                return
+            for i in range(0,len(path)-1):
+                vertex_1,vertex_2 = path[i],path[i+1]
+                if added_edges.get((vertex_1,vertex_2),None) is not None:
+                    continue
+                list_edges.append((path[i],path[i+1],1))
+                added_edges[(vertex_1,vertex_2)] = True
 
-    def show_bellmanford_info(self):
+        # Ajout des arcs pour chaque chemin
+        for p_1,p_2,p_3 in zip(path,path2,path3):
+            add_edge_from_path(p_1)
+            add_edge_from_path(p_2)
+            add_edge_from_path(p_3)
+        # Création du graph
+        new_graph = Graph(list_vertex)
+        new_graph.add_edges(list_edges)
+        # Retourne le graph
+        return new_graph
+        
+
+    def show_graph_info(self):
+        print("Graph:")
+        print(self.graph)
+        print("Vertex order:")
+        print(self.vertex_order)
+
+    def show_bellmanford_result(self):
         print("nb_iter:")
         print(self.nb_iter)
         print("path:")
@@ -126,8 +158,9 @@ class Graph:
 
         return puits
 
-    def delete_vertex(self, vertex_to_delete):
+    def delete_vertex(self, vertex_to_delete : int):
         #remove vertex
+        print(self.graph[vertex_to_delete])
         del self.graph[vertex_to_delete]
         #remove precedents
         for vertex in self.graph.keys():
@@ -135,17 +168,16 @@ class Graph:
                 if arcs[0] == vertex_to_delete:
                     self.graph[vertex].remove(arcs)
 
-    def get_diff_enter_exit(self, vertex):
+    def get_diff_enter_exit(self, vertex : int):
         if not(vertex in self.graph.keys()):
             return 0
         sum_enter = sum(precedent[1] for precedent in self.get_precedent(vertex))
         sum_exit = sum(neighbor[1] for neighbor in self.graph[vertex])
         return sum_exit - sum_enter
 
-    def GloutonFas(self):
-        s1 = []
-        s2 = []
-
+    def glouton_fas(self):
+        s1 : list = []
+        s2 : list = []
         graphe = deepcopy(self)
         while len(graphe.graph.keys()) > 0:
             while len(graphe.get_sources()) > 0:
@@ -156,7 +188,6 @@ class Graph:
                 u = graphe.get_puits()[0]
                 s2.insert(0, u)
                 graphe.delete_vertex(u)
-
             u_max = np.argmax(np.array([graphe.get_diff_enter_exit(vertex) for vertex in self.graph.keys()]))
             #à changer
             if len(graphe.graph.keys()) <= 1:
