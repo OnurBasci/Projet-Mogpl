@@ -16,6 +16,13 @@ class Graph:
     def add_edge_weight(self, u, v,w):
         self.graph[u].append((v, w))
 
+    def add_edges(self, edges):
+        for edge in edges:
+            self.graph[edge[0]] = (edge[1], edge[2])
+
+    def generate_random_weights(self):
+        pass
+
     # retourne la liste des prédécesseurs de vertex
     def get_precedent(self, target_vertex):
         liste_precedent = []
@@ -113,12 +120,12 @@ class Graph:
                 graphe.delete_vertex(u)
 
             u_max = np.argmax(np.array([graphe.get_diff_enter_exit(vertex) for vertex in self.graph.keys()]))
-            print(graphe.graph.keys())
-            s1.append(u_max)
             #à changer
             if len(graphe.graph.keys()) <= 1:
+                s1.append(list(graphe.graph.keys())[0])
                 graphe.graph = {}
             else:
                 graphe.delete_vertex(u_max)
+                s1.append(u_max)
         s1.extend(s2)
         return s1
