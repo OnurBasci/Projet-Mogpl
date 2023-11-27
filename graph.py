@@ -13,6 +13,7 @@ class Graph:
         self.graph[u-1].append((v-1, w))
 
 
+
     def get_precedent(self, target_vertex):
         liste_precedent = []
         for vertex in self.graph.keys():
