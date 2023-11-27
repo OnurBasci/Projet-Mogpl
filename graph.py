@@ -5,11 +5,28 @@ import matplotlib.pyplot as plt
 from copy import deepcopy
 
 class Graph:
+    """
+        Class qui représente un graph orienté avec des arcs pondérés
+
+        :method_static: 
+            - show_graph(graph : 'Graph') -> None
+            - unifiy_paths(path : list,path2 : list,path3 : list,list_vertex : list) -> 'Graph'
+            - generate_random_weights(graph : 'Graph') -> 'Graph'
+
+        :method: 
+            - add_edges(liste_edges : list) -> None
+            - get_precedent(target_vertex : int) -> list
+            - search_bellman_ford(source_vertex : int , vertex_order : list = None) -> (list,np.ndarray,int)
+            - reconstruct_path(source_vertex : int ) -> list
+            - show_bellmanford_result() -> None
+            - get_sources() -> list
+            - get_puits() -> list
+            - delete_vertex(vertex_to_delete : int) -> None
+            - get_diff_enter_exit(vertex : int) -> int
+            - glouton_fas() -> list
+    """
+        
     def __init__(self, list_vertex : list):
-        """
-        Class qui représente un graph orienté
-        :param list_vertex: liste des sommets du graph
-        """
         # liste des sommets
         self.list_vertex : list = list_vertex
         # liste des arcs
@@ -112,7 +129,6 @@ class Graph:
     │ Fonction de la classe                                                    │
     └──────────────────────────────────────────────────────────────────────────┘
     """
-    # ajoute une liste d'arcs au graph
     def add_edges(self, liste_edges : list) -> None:
         """
             Fonction qui ajoute des arcs au graph
@@ -123,7 +139,6 @@ class Graph:
         for u,v,w in liste_edges:
             self.graph[u].append((v, w))
 
-    # retourne la liste des prédécesseurs de vertex
     def get_precedent(self, target_vertex : int) -> list:
         """
             Fonction qui retourne la liste des prédecesseurs d'un sommet
@@ -141,7 +156,6 @@ class Graph:
                     liste_precedent.append((vertex,w))
         return liste_precedent
 
-    # calcule le plus court chemin entre vertex_start et vertex_end avec l'algorithme de Bellman-Ford
     def search_bellman_ford(self, source_vertex : int , vertex_order : list = None) -> (list,np.ndarray,int):
         """
             Fonction qui calcule le plus court chemin entre deux sommets avec l'algorithme de Bellman-Ford
@@ -185,10 +199,10 @@ class Graph:
             if np.array_equal(self.distances[i,:],self.distances[i-1,:]):
                 break
 
-        self.paths = self.reconstruct_path(source_vertex)
+        self.paths = self._reconstruct_path(source_vertex)
         return self.paths,self.distances,self.nb_iter
     
-    def reconstruct_path(self, source_vertex : int ) -> list:
+    def _reconstruct_path(self, source_vertex : int ) -> list:
         """
             Fonction qui reconstruit les chemins à partir des prédecesseurs
             :param source_vertex: sommet de départ

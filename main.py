@@ -12,7 +12,7 @@ def get_base_graph() -> Graph :
 
 def question_1(graph : Graph) -> None:
     """
-        Coder l'algorithme Bellman-Ford comme ennonc ́e plus haut. L'algorithme renverra
+        Coder l'algorithme Bellman-Ford comme ennoncé plus haut. L'algorithme renverra
         l'arborescence des plus courts chemins ainsi que le nombre d'it ́erations qui ont  ́et ́e n ́ecessaires avant
         que l'algorithme converge
     """
