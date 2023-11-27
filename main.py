@@ -10,3 +10,14 @@ def graph_question1():
 my_graph = graph_question1()
 my_graph.search_bellman_ford(5,None)
 my_graph.show_bellmanford_info()
+
+#question 3
+G1 = Graph.generate_random_weights(my_graph)
+G2 = Graph.generate_random_weights(my_graph)
+G3 = Graph.generate_random_weights(my_graph)
+H = Graph.generate_random_weights(my_graph)
+
+print(f"{G1.graph=}")
+print(f"{G2.graph=}")
+print(f"{G3.graph=}")
+print(f"{H.graph=}")

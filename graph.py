@@ -1,4 +1,6 @@
-import numpy as np 
+import random
+
+import numpy as np
 from copy import deepcopy
 
 class Graph:
@@ -25,9 +27,20 @@ class Graph:
     def add_edge_weight(self, u, v, w):
         self.graph[u].append((v, w))
 
+    @staticmethod
+    def generate_random_weights(graph):
+        """
+        :param graphe: Un graphe orienté sans poids
+        :return: Creation d'un nouveau graphe avec des poids aléatoirement générés
+        """
+        random_graph = deepcopy(graph)
 
-    def generate_random_weights(self):
-        pass
+        for vertex in random_graph.graph:
+            for i, neighboor in enumerate(random_graph.graph[vertex]):
+                random_weight = random.randint(-10, 10)
+                random_graph.graph[vertex][i] = (neighboor[0], random_weight)
+
+        return random_graph
 
     # retourne la liste des prédécesseurs de vertex
     def get_precedent(self, target_vertex):
