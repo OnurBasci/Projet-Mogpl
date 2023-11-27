@@ -7,7 +7,7 @@ class Graph:
         self.computed_vertices = {}
         self.distances = np.zeros((len(self.liste_sommets)-1,len(self.liste_sommets)))
         self.distances.fill(np.inf)
-        self.distances[0][0] = 0 
+        self.distances[:,0] = 0 
 
     def add_edge_weight(self, u, v,w):
         self.graph[u].append((v, w))
@@ -35,10 +35,10 @@ class Graph:
     #     return min_dist
 
     def compute_bellmanford(self, vertex_start, vertex_end):
-        for i in range(1, len(self.liste_sommets)):
-            for j, vertex in enumerate(self.liste_sommets):
+        for i in range(1, len(self.liste_sommets)-1):
+            for vertex in self.liste_sommets:
                 for neighbor, weight in self.graph[vertex]:
-                    self.distances[i][j] = min(self.distances[i][j], self.distances[i-1][neighbor] + weight)
+                    self.distances[i][vertex] = min(self.distances[i][vertex], self.distances[i-1][neighbor] + weight)
         return self.distances
 
 
