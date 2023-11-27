@@ -1,8 +1,14 @@
-import numpy as np 
+import random
+
+import numpy as np
 from copy import deepcopy
 
 class Graph:
     def __init__(self, list_vertex : list):
+        """
+        Class qui représente un graph orienté
+        :param list_vertex: liste des sommets du graph
+        """
         # liste des sommets
         self.list_vertex : list = list_vertex
         # un ordre des sommets 
@@ -16,17 +22,73 @@ class Graph:
         # nombre d'itérations pour l'algorithm de Bellman-Ford
         self.nb_iter :int = 0
         
+    @staticmethod
+    def unifiy_paths(path : list,path2 : list,path3 : list,list_vertex : list) -> 'Graph':
+        """
+        Fonction qui unifie les chemins pour créer un graph
+        :param path: chemin 1
+        :param path2: chemin 2
+        :param path3: chemin 3
+        :param list_vertex: liste des sommets
+        :return: un graph
+        """
+        
+        # Initialisation des variables
+        list_edges : list = []
+        added_edges : dict = {}
+        # Fonction qui ajoute un arc au graph si il n'existe pas déjà
+        def add_edge_from_path(path):
+            if len(path) <= 1:
+                return
+            for i in range(0,len(path)-1):
+                vertex_1,vertex_2 = path[i],path[i+1]
+                if added_edges.get((vertex_1,vertex_2),None) is not None:
+                    continue
+                list_edges.append((path[i],path[i+1],1))
+                added_edges[(vertex_1,vertex_2)] = True
+
+        # Ajout des arcs pour chaque chemin
+        for p_1,p_2,p_3 in zip(path,path2,path3):
+            add_edge_from_path(p_1)
+            add_edge_from_path(p_2)
+            add_edge_from_path(p_3)
+        # Création du graph
+        new_graph = Graph(list_vertex)
+        new_graph.add_edges(list_edges)
+        # Retourne le graph
+        return new_graph
+    
+    @staticmethod
+    def generate_random_weights(graph : 'Graph'):
+        """
+        Fonction qui génère des poids aléatoires pour un graphe donnée
+        :param graph: Un graphe orienté sans poids
+        :return: Creation d'un nouveau graphe avec des poids aléatoirement générés
+        """
+        random_graph = deepcopy(graph)
+
+        for vertex in random_graph.graph:
+            for i, neighboor in enumerate(random_graph.graph[vertex]):
+                random_weight = random.randint(-10, 10)
+                random_graph.graph[vertex][i] = (neighboor[0], random_weight)
+
+        return random_graph
+    
+    """  Méthodes de la classe Graph 
+    """
     # ajoute une liste d'arcs au graph
     def add_edges(self, liste_arcs : list) -> None:
         for u,v,w in liste_arcs:
             self.graph[u].append((v, w))
 
-    # génère des poids aléatoires pour les arcs du graph
-    def generate_random_weights(self):
-        pass
-
     # retourne la liste des prédécesseurs de vertex
     def get_precedent(self, target_vertex : int) -> list:
+        """
+        Fonction qui retourne la liste des prédecesseurs d'un sommet
+        :param target_vertex: sommet cible
+        :return: liste des prédecesseurs du sommet cible
+
+        """
         liste_precedent : list = []
         # Pour chaque sommet
         for vertex in self.graph.keys():
@@ -39,6 +101,13 @@ class Graph:
 
     # calcule le plus court chemin entre vertex_start et vertex_end avec l'algorithme de Bellman-Ford
     def search_bellman_ford(self, source_vertex : int , vertex_order : list = None) -> (list,np.ndarray,int):
+        """
+        Fonction qui calcule le plus court chemin entre deux sommets avec l'algorithme de Bellman-Ford
+        :param source_vertex: sommet de départ
+        :param vertex_order: ordre des sommets à parcourir
+        :return: liste des plus court chemins, matrice des distances, nombre d'itérations
+        """
+
         # si vertex_order n'est pas spécifié, on prend l'ordre de la liste des sommets
         if vertex_order is None:
             vertex_order = self.list_vertex
@@ -78,6 +147,12 @@ class Graph:
         return self.paths,self.distances,self.nb_iter
     
     def reconstruct_path(self, source_vertex : int ) -> list:
+        """
+        Fonction qui reconstruit les chemins à partir des prédecesseurs
+        :param source_vertex: sommet de départ
+        :return: liste des chemins
+        """
+
         paths : list = []
         # Pour chaque sommet
         for vertex in self.vertex_order:
@@ -96,34 +171,6 @@ class Graph:
             path.append(source_vertex)
             paths.append(path[::-1])
         return paths
-    
-    @staticmethod
-    def unifiy_paths(path : list,path2 : list,path3 : list,list_vertex : list) -> 'Graph':
-        # Initialisation des variables
-        list_edges : list = []
-        added_edges : dict = {}
-        # Fonction qui ajoute un arc au graph si il n'existe pas déjà
-        def add_edge_from_path(path):
-            if len(path) <= 1:
-                return
-            for i in range(0,len(path)-1):
-                vertex_1,vertex_2 = path[i],path[i+1]
-                if added_edges.get((vertex_1,vertex_2),None) is not None:
-                    continue
-                list_edges.append((path[i],path[i+1],1))
-                added_edges[(vertex_1,vertex_2)] = True
-
-        # Ajout des arcs pour chaque chemin
-        for p_1,p_2,p_3 in zip(path,path2,path3):
-            add_edge_from_path(p_1)
-            add_edge_from_path(p_2)
-            add_edge_from_path(p_3)
-        # Création du graph
-        new_graph = Graph(list_vertex)
-        new_graph.add_edges(list_edges)
-        # Retourne le graph
-        return new_graph
-        
 
     def show_graph_info(self):
         print("Graph:")
@@ -132,12 +179,11 @@ class Graph:
         print(self.vertex_order)
 
     def show_bellmanford_result(self):
-        print("nb_iter:")
-        print(self.nb_iter)
-        print("path:")
-        print(self.paths)
-        print("distances:")
-        print(self.distances)
+        print("=========================\n")	
+        print(f"[INFO] BellmanFord completed in {self.nb_iter} iterations")
+        print(f"[INFO] Paths found : {self.paths}")
+        print(f"[INFO] Matrix distance : \n {self.distances}")
+        print("\n")
 
     def get_path_distance(self):
         return self.path,self.distances
