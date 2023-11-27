@@ -1,6 +1,7 @@
 import random
-
 import numpy as np
+import networkx as nx
+import matplotlib.pyplot as plt
 from copy import deepcopy
 
 class Graph:
@@ -11,6 +12,8 @@ class Graph:
         """
         # liste des sommets
         self.list_vertex : list = list_vertex
+        # liste des arcs
+        self.list_edges : list = None
         # un ordre des sommets 
         self.vertex_order : list = None
         # représentation du graph sous forme de listes d'adjacence
@@ -21,7 +24,37 @@ class Graph:
         self.paths : list = None
         # nombre d'itérations pour l'algorithm de Bellman-Ford
         self.nb_iter :int = 0
-        
+
+    """
+    ┌──────────────────────────────────────────────────────────────────────────┐
+    │ Fonction static de la classe                                             │  
+    └──────────────────────────────────────────────────────────────────────────┘
+    """
+    @staticmethod
+    def show_graph(graph : 'Graph'):
+        """
+            Fonction qui affiche un graph avec les poids des arcs et les sommets
+            :param graph: graph à afficher
+            :return: None
+        """
+        G = nx.Graph()
+        # Ajout des sommets
+        G.add_nodes_from(graph.list_vertex)
+        # Ajout des arcs avec les poids
+        for edge in graph.list_edges:
+            u, v, weight = edge
+            G.add_edge(u, v, weight=weight)
+        # Positionnement des sommets
+        pos = nx.spring_layout(G)
+        # Dessiner les sommets
+        nx.draw(G, pos, with_labels=True, font_weight='bold', node_size=700, node_color='skyblue', font_color='black', font_size=8)
+        # Dessiner les arcs
+        edge_labels = {(u, v): f'{weight}' for u, v, weight in graph.list_edges}
+        nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='red')
+        plt.show()
+
+
+
     @staticmethod
     def unifiy_paths(path : list,path2 : list,path3 : list,list_vertex : list) -> 'Graph':
         """
@@ -66,27 +99,36 @@ class Graph:
         :return: Creation d'un nouveau graphe avec des poids aléatoirement générés
         """
         random_graph = deepcopy(graph)
-
+        list_edges = []
         for vertex in random_graph.graph:
             for i, neighboor in enumerate(random_graph.graph[vertex]):
                 random_weight = random.randint(-10, 10)
+                list_edges.append((vertex, neighboor[0], random_weight))
                 random_graph.graph[vertex][i] = (neighboor[0], random_weight)
-
+        random_graph.list_edges = list_edges
         return random_graph
-    
-    """  Méthodes de la classe Graph 
+    """
+    ┌──────────────────────────────────────────────────────────────────────────┐
+    │ Fonction de la classe                                                    │
+    └──────────────────────────────────────────────────────────────────────────┘
     """
     # ajoute une liste d'arcs au graph
-    def add_edges(self, liste_arcs : list) -> None:
-        for u,v,w in liste_arcs:
+    def add_edges(self, liste_edges : list) -> None:
+        """
+            Fonction qui ajoute des arcs au graph
+            :param liste_edges: liste des arcs
+            :return: None
+        """
+        self.list_edges = liste_edges
+        for u,v,w in liste_edges:
             self.graph[u].append((v, w))
 
     # retourne la liste des prédécesseurs de vertex
     def get_precedent(self, target_vertex : int) -> list:
         """
-        Fonction qui retourne la liste des prédecesseurs d'un sommet
-        :param target_vertex: sommet cible
-        :return: liste des prédecesseurs du sommet cible
+            Fonction qui retourne la liste des prédecesseurs d'un sommet
+            :param target_vertex: sommet cible
+            :return: liste des prédecesseurs du sommet cible
 
         """
         liste_precedent : list = []
@@ -102,10 +144,10 @@ class Graph:
     # calcule le plus court chemin entre vertex_start et vertex_end avec l'algorithme de Bellman-Ford
     def search_bellman_ford(self, source_vertex : int , vertex_order : list = None) -> (list,np.ndarray,int):
         """
-        Fonction qui calcule le plus court chemin entre deux sommets avec l'algorithme de Bellman-Ford
-        :param source_vertex: sommet de départ
-        :param vertex_order: ordre des sommets à parcourir
-        :return: liste des plus court chemins, matrice des distances, nombre d'itérations
+            Fonction qui calcule le plus court chemin entre deux sommets avec l'algorithme de Bellman-Ford
+            :param source_vertex: sommet de départ
+            :param vertex_order: ordre des sommets à parcourir
+            :return: liste des plus court chemins, matrice des distances, nombre d'itérations
         """
 
         # si vertex_order n'est pas spécifié, on prend l'ordre de la liste des sommets
@@ -148,9 +190,9 @@ class Graph:
     
     def reconstruct_path(self, source_vertex : int ) -> list:
         """
-        Fonction qui reconstruit les chemins à partir des prédecesseurs
-        :param source_vertex: sommet de départ
-        :return: liste des chemins
+            Fonction qui reconstruit les chemins à partir des prédecesseurs
+            :param source_vertex: sommet de départ
+            :return: liste des chemins
         """
 
         paths : list = []
@@ -172,23 +214,22 @@ class Graph:
             paths.append(path[::-1])
         return paths
 
-    def show_graph_info(self):
-        print("Graph:")
-        print(self.graph)
-        print("Vertex order:")
-        print(self.vertex_order)
-
     def show_bellmanford_result(self):
+        """
+            Fonction qui affiche les résultats de l'algorithme de Bellman-Ford
+            :return: None
+        """
         print("=========================\n")	
         print(f"[INFO] BellmanFord completed in {self.nb_iter} iterations")
         print(f"[INFO] Paths found : {self.paths}")
         print(f"[INFO] Matrix distance : \n {self.distances}")
         print("\n")
 
-    def get_path_distance(self):
-        return self.path,self.distances
-
     def get_sources(self):
+        """
+            <Ajourter la description>
+            :return: <Ajourter la description>
+        """
         sources = []
         for vertex in self.graph.keys():
             if len(self.graph[vertex]) > 0 and len(self.get_precedent(vertex)) <= 0:
@@ -197,6 +238,10 @@ class Graph:
         return sources
 
     def get_puits(self):
+        """
+            <Ajourter la description>
+            :return: <Ajourter la description>
+        """
         puits = []
         for vertex in self.graph.keys():
             if len(self.graph[vertex]) <= 0 and len(self.get_precedent(vertex)) > 0:
@@ -205,6 +250,11 @@ class Graph:
         return puits
 
     def delete_vertex(self, vertex_to_delete : int):
+        """
+            <Ajourter la description>
+            :param vertex_to_delete: <Ajourter la description>
+            :return: <Ajourter la description>
+        """
         #remove vertex
         print(self.graph[vertex_to_delete])
         del self.graph[vertex_to_delete]
@@ -215,6 +265,11 @@ class Graph:
                     self.graph[vertex].remove(arcs)
 
     def get_diff_enter_exit(self, vertex : int):
+        """
+            <Ajourter la description>
+            :param vertex: <Ajourter la description>
+            :return: <Ajourter la description>
+        """
         if not(vertex in self.graph.keys()):
             return 0
         sum_enter = sum(precedent[1] for precedent in self.get_precedent(vertex))
@@ -222,6 +277,11 @@ class Graph:
         return sum_exit - sum_enter
 
     def glouton_fas(self):
+        """
+            <Ajourter la description>
+            :return: <Ajourter la description>
+        """
+
         s1 : list = []
         s2 : list = []
         graphe = deepcopy(self)
