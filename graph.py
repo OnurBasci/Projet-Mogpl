@@ -65,4 +65,60 @@ class Graph:
     def get_path_distance(self):
         return self.path,self.distances
 
+    def get_sources(self):
+        sources = []
+        for vertex in self.graph.keys():
+            if len(self.graph[vertex]) > 0 and len(self.get_precedent(vertex)) <= 0:
+                sources.append(vertex)
 
+        return sources
+
+    def get_puits(self):
+        puits = []
+        for vertex in self.graph.keys():
+            if len(self.graph[vertex]) <= 0 and len(self.get_precedent(vertex)) > 0:
+                puits.append(vertex)
+
+        return puits
+
+    def delete_vertex(self, vertex_to_delete):
+        #remove vertex
+        del self.graph[vertex_to_delete]
+        #remove precedents
+        for vertex in self.graph.keys():
+            for arcs in self.graph[vertex]:
+                if arcs[0] == vertex_to_delete:
+                    self.graph[vertex].remove(arcs)
+
+    def get_diff_enter_exit(self, vertex):
+        if not(vertex in self.graph.keys()):
+            return 0
+        sum_enter = sum(precedent[1] for precedent in self.get_precedent(vertex))
+        sum_exit = sum(neighbor[1] for neighbor in self.graph[vertex])
+        return sum_exit - sum_enter
+
+    def GloutonFas(self):
+        s1 = []
+        s2 = []
+
+        graphe = deepcopy(self)
+        while len(graphe.graph.keys()) > 0:
+            while len(graphe.get_sources()) > 0:
+                u = graphe.get_sources()[0]
+                s1.append(u)
+                graphe.delete_vertex(u)
+            while len(graphe.get_puits()) > 0:
+                u = graphe.get_puits()[0]
+                s2.insert(0, u)
+                graphe.delete_vertex(u)
+
+            u_max = np.argmax(np.array([graphe.get_diff_enter_exit(vertex) for vertex in self.graph.keys()]))
+            print(graphe.graph.keys())
+            s1.append(u_max)
+            #à changer
+            if len(graphe.graph.keys()) <= 1:
+                graphe.graph = {}
+            else:
+                graphe.delete_vertex(u_max)
+        s1.extend(s2)
+        return s1

@@ -22,3 +22,5 @@ path,distance,nb_iter = my_graph.compute_bellmanford(5,0)
 print("path: ", path)
 print("distance: ", distance)
 print("nb_iter: ", nb_iter)
+
+print(my_graph.GloutonFas())
