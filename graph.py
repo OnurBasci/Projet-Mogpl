@@ -1,4 +1,5 @@
 import numpy as np 
+from copy import deepcopy
 
 class Graph:
     def __init__(self, liste_vertex):
