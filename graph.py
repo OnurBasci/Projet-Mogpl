@@ -26,7 +26,7 @@ class Graph:
 
         for i in range(1, len(self.liste_sommets)-1):
             for vertex in self.liste_sommets:
-                vertex -= - 1
+                vertex -= 1
                 if self.distances[i-1,vertex] == np.inf:
                     continue
                 for neighbor, weight in self.graph[vertex]:
@@ -37,7 +37,7 @@ class Graph:
     def get_sources(self):
         sources = []
         for vertex in self.graph.keys():
-            if len(self.graph[vertex] > 0 and len(self.get_precedent(vertex)) <= 0):
+            if len(self.graph[vertex]) > 0 and len(self.get_precedent(vertex)) <= 0:
                 sources.append(vertex)
 
         return sources
@@ -45,7 +45,7 @@ class Graph:
     def get_puits(self):
         puits = []
         for vertex in self.graph.keys():
-            if len(self.graph[vertex] <= 0 and len(self.get_precedent(vertex)) > 0):
+            if len(self.graph[vertex]) <= 0 and len(self.get_precedent(vertex)) > 0:
                 puits.append(vertex)
 
         return puits
@@ -59,31 +59,38 @@ class Graph:
                 if arcs[0] == vertex_to_delete:
                     self.graph[vertex].remove(arcs)
 
-    def get_diff_enter_exit(self, vertex, graph):
-        sum_enter = sum(precedent[1] for precedent in graph.get_precedent(vertex))
-        sum_exit = sum(neighbor[1] for neighbor in graph[vertex])
+    def get_diff_enter_exit(self, vertex):
+        if not(vertex in self.graph.keys()):
+            return 0
+        sum_enter = sum(precedent[1] for precedent in self.get_precedent(vertex))
+        sum_exit = sum(neighbor[1] for neighbor in self.graph[vertex])
         return sum_exit - sum_enter
 
     def GloutonFas(self):
         s1 = []
         s2 = []
 
-        graphe = deepcopy(self.graph)
-        while len(graphe.keys()) > 0:
-            while len(self.get_sources()) > 0:
-                u = self.get_sources()[0]
-                s1.insert(u, 0)
+        graphe = deepcopy(self)
+        while len(graphe.graph.keys()) > 0:
+            while len(graphe.get_sources()) > 0:
+                u = graphe.get_sources()[0]
+                s1.append(u)
                 graphe.delete_vertex(u)
-            while len(self.get_puits()) > 0:
-                u = self.get_puits()[0]
-                s2.append(u)
+            while len(graphe.get_puits()) > 0:
+                u = graphe.get_puits()[0]
+                s2.insert(0, u)
                 graphe.delete_vertex(u)
 
-            u_max = np.argmax(np.array([self.get_diff_enter_exit(vertex, graphe) for vertex in graphe.keys()]))
+            u_max = np.argmax(np.array([graphe.get_diff_enter_exit(vertex) for vertex in self.graph.keys()]))
+            print(graphe.graph.keys())
             s1.append(u_max)
-            graphe.delete_vertex(u_max)
-
-        return s1.extend(s2)
+            #à changer
+            if len(graphe.graph.keys()) <= 1:
+                graphe.graph = {}
+            else:
+                graphe.delete_vertex(u_max)
+        s1.extend(s2)
+        return s1
 
 
 

@@ -17,4 +17,5 @@ my_graph.add_edge_weight(7,1,1)
 my_graph.add_edge_weight(8,3,1)
 my_graph.add_edge_weight(8,2,1)
 
-print(my_graph.compute_bellmanford(6,7))  
+#print(my_graph.compute_bellmanford(6,7))
+print(my_graph.GloutonFas())
