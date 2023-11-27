@@ -3,14 +3,13 @@ import numpy as np
 class Graph:
     def __init__(self, liste_sommets):
         self.liste_sommets = liste_sommets
-        self.graph = {x : [] for x in self.liste_sommets}
+        self.graph = {x-1 : [] for x in self.liste_sommets}
         self.computed_vertices = {}
         self.distances = np.zeros((len(self.liste_sommets)-1,len(self.liste_sommets)))
         self.distances.fill(np.inf)
-        self.distances[:,0] = 0 
 
     def add_edge_weight(self, u, v,w):
-        self.graph[u].append((v, w))
+        self.graph[u-1].append((v-1, w))
 
 
     def get_precedent(self, target_vertex):
@@ -21,25 +20,19 @@ class Graph:
                     liste_precedent.append((vertex,arcs[1]))
         return liste_precedent
 
-    # def compute_bellmanford(self,vertex_start,vertex_end):
-    #     if self.computed_vertices.get((vertex_start,vertex_end),False):
-    #         return self.computed_vertices[(vertex_start,vertex_end)]
-        
-    #     if vertex_start == vertex_end:
-    #         self.computed_vertices[(vertex_start,vertex_end)] = 0
-    #         return 0
-        
-    #     liste_precedent = self.get_precedent(vertex_end)
-    #     min_dist = min([self.compute_bellmanford(vertex_start,precedent[0]) + precedent[1] for precedent in liste_precedent])
-    #     self.computed_vertices[(vertex_start,vertex_end)] = min_dist
-    #     return min_dist
-
     def compute_bellmanford(self, vertex_start, vertex_end):
+        self.distances[:,vertex_start] = 0
+
         for i in range(1, len(self.liste_sommets)-1):
             for vertex in self.liste_sommets:
+                vertex -= - 1
+                if self.distances[i-1,vertex] == np.inf:
+                    continue
                 for neighbor, weight in self.graph[vertex]:
-                    self.distances[i][vertex] = min(self.distances[i][vertex], self.distances[i-1][neighbor] + weight)
+                    self.distances[i,neighbor] = min(self.distances[i,neighbor], self.distances[i-1,vertex] + weight)
+
         return self.distances
+
 
 
 
