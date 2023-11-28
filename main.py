@@ -28,17 +28,32 @@ def question_3(graph : Graph):
     print(f"{G2.graph=}")
     print(f"{G3.graph=}")
     print(f"{H.graph=}")
+    return G1, G2, G3, H
 
 
-def question_4():
-    pass
+def question_4(graph_1: Graph, graph_2: Graph, graph_3: Graph):
+    print(0)
+    path_1,_,_ = graph_1.search_bellman_ford(0,None)
+    print(1)
+    path_2,_,_ = graph_2.search_bellman_ford(0,None)
+    print(2)
+    path_3,_,_ = graph_3.search_bellman_ford(0,None)
+    print(3)
+
+    union_T : Graph = Graph.unifiy_paths(path_1,path_2,path_3, graph_1.list_vertex)
+    print(f"{path_1=}")
+    print(f"{path_2=}")
+    print(f"{path_3=}")
+    print(f"{union_T.graph=}")
+    ordre = union_T.glouton_fas()
+    print(f"{ordre=}")
 
 def main():
     my_graph = get_base_graph()
     question_1(my_graph)
     question_2(my_graph)
-    question_3(my_graph)
-
+    G1, G2, G3, H = question_3(my_graph)
+    question_4(G1, G2, G3)
 
 if __name__ == "__main__":
     main()

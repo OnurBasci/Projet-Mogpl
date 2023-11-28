@@ -1,3 +1,4 @@
+import math
 import random
 
 import numpy as np
@@ -44,7 +45,7 @@ class Graph:
                 vertex_1,vertex_2 = path[i],path[i+1]
                 if added_edges.get((vertex_1,vertex_2),None) is not None:
                     continue
-                list_edges.append((path[i],path[i+1],1))
+                list_edges.append((path[i],path[i+1],1))   #?? il faut ajouter des poids?
                 added_edges[(vertex_1,vertex_2)] = True
 
         # Ajout des arcs pour chaque chemin
@@ -191,7 +192,7 @@ class Graph:
     def get_sources(self):
         sources = []
         for vertex in self.graph.keys():
-            if len(self.graph[vertex]) > 0 and len(self.get_precedent(vertex)) <= 0:
+            if len(self.get_precedent(vertex)) <= 0:
                 sources.append(vertex)
 
         return sources
@@ -199,7 +200,7 @@ class Graph:
     def get_puits(self):
         puits = []
         for vertex in self.graph.keys():
-            if len(self.graph[vertex]) <= 0 and len(self.get_precedent(vertex)) > 0:
+            if len(self.graph[vertex]) <= 0:
                 puits.append(vertex)
 
         return puits
@@ -216,7 +217,7 @@ class Graph:
 
     def get_diff_enter_exit(self, vertex : int):
         if not(vertex in self.graph.keys()):
-            return 0
+            return -math.inf
         sum_enter = sum(precedent[1] for precedent in self.get_precedent(vertex))
         sum_exit = sum(neighbor[1] for neighbor in self.graph[vertex])
         return sum_exit - sum_enter
@@ -235,12 +236,9 @@ class Graph:
                 s2.insert(0, u)
                 graphe.delete_vertex(u)
             u_max = np.argmax(np.array([graphe.get_diff_enter_exit(vertex) for vertex in self.graph.keys()]))
-            #à changer
-            if len(graphe.graph.keys()) <= 1:
-                s1.append(list(graphe.graph.keys())[0])
-                graphe.graph = {}
-            else:
-                graphe.delete_vertex(u_max)
+
+            if len(graphe.graph.keys()) > 0:
                 s1.append(u_max)
+                graphe.delete_vertex(u_max)
         s1.extend(s2)
         return s1
