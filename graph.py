@@ -125,6 +125,10 @@ class Graph:
                 random_graph.graph[vertex][i] = (neighboor[0], random_weight)
         random_graph.list_edges = list_edges
         return random_graph
+    @staticmethod
+    def generate_random_order(graph):
+        nb_elem = len(graph.list_vertex)
+        return random.sample(range(nb_elem), nb_elem)
     """
     ┌──────────────────────────────────────────────────────────────────────────┐
     │ Fonction de la classe                                                    │
@@ -196,9 +200,14 @@ class Graph:
                         self.predecessors[i, neighbor] = vertex
 
             self.nb_iter += 1
+            # Si il y a un cyle à poids negatif, on retourne
+            if self.nb_iter > len(vertex_order):
+                return
+
             # # Si les distances n'ont pas changé, on arrête l'algorithme
             if np.array_equal(self.distances[i,:],self.distances[i-1,:]):
                 break
+            #print(self.nb_iter)
 
         self.paths = self._reconstruct_path(source_vertex)
         return self.paths,self.distances,self.nb_iter

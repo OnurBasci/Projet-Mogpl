@@ -38,17 +38,12 @@ def question_3(graph : Graph) -> (Graph,Graph,Graph):
     g3 = Graph.generate_random_weights(graph)
     H = Graph.generate_random_weights(graph)
 
-    print(f"{G1.graph=}")
-    print(f"{G2.graph=}")
-    print(f"{G3.graph=}")
-    print(f"{H.graph=}")
-    return G1, G2, G3, H
-    Graph.show_graph(g1)
-    Graph.show_graph(g2)
-    Graph.show_graph(g3)
-    Graph.show_graph(H)
+    #Graph.show_graph(g1)
+    #Graph.show_graph(g2)
+    #Graph.show_graph(g3)
+    #Graph.show_graph(H)
 
-    return g1,g2,g3
+    return g1, g2, g3, H
 
 def question_4(graph_1: Graph, graph_2: Graph, graph_3: Graph):
     """
@@ -56,14 +51,6 @@ def question_4(graph_1: Graph, graph_2: Graph, graph_3: Graph):
         l'algorithme Bellman-Ford dans chacun de ces graphes et d ́eterminer l'union de leurs arborescences
         des plus courts chemins que l'on appelera T.
     """
-    path_1,_,_ = graph_1.search_bellman_ford(0,None)
-    path_2,_,_ = graph_2.search_bellman_ford(0,None)
-    path_3,_,_ = graph_3.search_bellman_ford(0,None)
-
-    union_T : Graph = Graph.unifiy_paths(path_1,path_2,path_3)
-    ordre = union_T.glouton_fas()
-
-def question_4(graph_1: Graph, graph_2: Graph, graph_3: Graph):
     print(0)
     path_1,_,_ = graph_1.search_bellman_ford(0,None)
     print(1)
@@ -71,21 +58,57 @@ def question_4(graph_1: Graph, graph_2: Graph, graph_3: Graph):
     print(2)
     path_3,_,_ = graph_3.search_bellman_ford(0,None)
     print(3)
-
     union_T : Graph = Graph.unifiy_paths(path_1,path_2,path_3, graph_1.list_vertex)
-    print(f"{path_1=}")
-    print(f"{path_2=}")
-    print(f"{path_3=}")
-    print(f"{union_T.graph=}")
+
+    return union_T
+
+def question_5(union_T):
+    """
+     Appliquer l’algorithme GloutonFas avec comme entrée T et retourner un ordre <tot.
+    """
+    print("Question 5: Calcul de l'ordre pour le graphe d'union")
     ordre = union_T.glouton_fas()
-    print(f"{ordre=}")
+    print(f"Question 5 \n {ordre=}")
+    return ordre
+
+def question_6(H, ordre):
+    """
+    Pour le graphe H généré à la question 3 appliquer l’algorithme Bellman-Ford en
+    utilisant l’ordre <tot.
+    """
+    print("Question 6: Application de Bellman Ford à H")
+    return H.search_bellman_ford(0, ordre)
+
+def question_7(graph):
+    """
+     Pour le graphe H appliquer l’algorithm Bellman-Ford en utilisant un ordre tiré
+    aléatoirement (de manière uniforme).
+    """
+    ordre = Graph.generate_random_order(graph)
+    return graph.search_bellman_ford(0, ordre)
+
+def question_8(Bellman_H, Bellman_H_random):
+    """
+     Comparer les résultats (nombre d’itérations) obtenus dans les questions 6 et 7.
+    """
+    print("Comparaison Bellman avec prétraitement et Bellman avec un ordre aléatoire")
+    if not(Bellman_H) or not(Bellman_H_random):
+        return
+    print(f"Nb itération, Bellman avec prétraitement: {Bellman_H[1]}")
+    print(f"Nb itération, Bellman avec un ordre aléatoire: {Bellman_H_random[1]}")
 
 def main():
     my_graph = get_base_graph()
     question_1(my_graph)
     question_2(my_graph)
-    g1,g2,g3 = question_3(my_graph)
-    question_4(g1,g2,g3)
+    g1,g2,g3,H = question_3(my_graph)
+    union_T = question_4(g1,g2,g3)
+    ordre = question_5(union_T)
+    Bellman_H = question_6(H, ordre)
+    Bellman_H_random = question_7(H)
+    question_8(Bellman_H, Bellman_H_random)
+
+
 
 if __name__ == "__main__":
     main()
