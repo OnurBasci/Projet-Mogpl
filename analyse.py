@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from graph import Graph
 
 #QUESTION 10
-def calclulate_mean_nb_iter(nb_graphs, nb_vertex, nb_edges, nb_repetition):
+def calclulate_mean_nb_iter(nb_graphs=7, nb_vertex=100, nb_edges=400, nb_repetition=20, graphe = None):
     moyen_glouton = 0
     moyen_random = 0
     gloutons = []
@@ -10,7 +10,10 @@ def calclulate_mean_nb_iter(nb_graphs, nb_vertex, nb_edges, nb_repetition):
     counter = 0
     for i in range(nb_repetition):
         print(f"iteration : {i}")
-        nb_iter_glouton, nb_iter_random = Graph.compare_graph(nb_vertex, nb_edges, nb_graphs)
+        if graphe is None:
+            nb_iter_glouton, nb_iter_random = Graph.compare_graph(nb_vertex, nb_edges, nb_graphs)
+        else:
+            nb_iter_glouton, nb_iter_random = Graph.compare_graph(graphe, nb_graphs)
         if nb_iter_random is None or nb_iter_glouton is None:
             continue
         gloutons.append(nb_iter_glouton)
@@ -25,6 +28,9 @@ def calclulate_mean_nb_iter(nb_graphs, nb_vertex, nb_edges, nb_repetition):
     print(f"randoms {randoms}")
 
     return moyen_glouton/counter, moyen_random/counter, gloutons, randoms
+
+
+
 def anlayse_nb_iter_by_nb_trainGraph(nb_graphs, nb_vertex, nb_edges, nb_repetitions, max_nb_trainGraph):
     moyens_glouton = []
     moyens_random = []

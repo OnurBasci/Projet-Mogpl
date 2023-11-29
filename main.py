@@ -1,5 +1,5 @@
 from graph import Graph
-from analyse import anlayse_nb_iter_by_nb_trainGraph
+from analyse import anlayse_nb_iter_by_nb_trainGraph, calclulate_mean_nb_iter
 
 def get_base_graph() -> Graph :
     """ 
@@ -102,6 +102,26 @@ def question_9():
     nb_edges = nb_vertex*4
     Graph.compare_graph(nb_vertex,nb_edges,nb_graphs)
 
+def question_10():
+    """
+    Comment le nombre de graphes que l’on utilise pour apprendre l’ordre influence le
+    nombre d’it´erations ?
+    """
+    print("Question 10")
+    anlayse_nb_iter_by_nb_trainGraph(7, 100, 400, 20, 10)
+
+def question_11():
+    """
+     Soit la famille d’instances suivantes : un graphe par niveau avec 4 sommets par
+    niveau et 2500 niveaux o`u les sommets du niveau j précédent tous les sommets du niveau j + 1
+    et où pour chaque arc on a un poids tiré de manière uniforme et aléatoire parmi les entiers dans
+    l’intervalle [−10, 10]. Est-ce que la méthode avec prétraitement est adéquate ? Justifier votre
+    réponse
+    """
+    level_graphe = Graph.generate_level_graph(2500)
+    print("here")
+    calclulate_mean_nb_iter(graphe=level_graphe, nb_repetition=20)
+
 
 
 
@@ -109,8 +129,8 @@ def main():
     """
         Fonction principale qui regroupe tous les appels aux fonctions des questions
     """
-    # Graph de base
-    """my_graph = get_base_graph()
+    """# Graph de base
+    my_graph = get_base_graph()
     # Question 1
     question_1(my_graph)
     # Question 2
@@ -128,8 +148,11 @@ def main():
     # Question 8
     question_8(Bellman_H, Bellman_H_random)
     # Question 9
-    question_9()"""
-    anlayse_nb_iter_by_nb_trainGraph(7,100,400, 20, 10)
+    question_9()
+    # Question 10
+    question_10()"""
+    #question 11
+    question_11()
 
 
 if __name__ == "__main__":

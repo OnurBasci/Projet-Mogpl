@@ -105,7 +105,7 @@ class Graph:
         return new_graph
     
     @staticmethod
-    def generate_graphs_with_random_weights(base_graph : 'Graph', nb_graph:int)->list['Graph']:
+    def generate_graphs_with_random_weights(base_graph : 'Graph', nb_graph:int, delete_cycle = True)->list['Graph']:
         """
         Fonction qui génère des graphes avec des poids aléatoires
         :param base_graph: Un graphe orienté sans poids
@@ -114,11 +114,11 @@ class Graph:
         """
         graphs = []
         for _ in range(nb_graph):
-            graphs.append(Graph.generate_random_weights(base_graph))
+            graphs.append(Graph.generate_random_weights(base_graph, delete_cycle=delete_cycle))
         return graphs
 
     @staticmethod
-    def generate_random_weights(graph : 'Graph'):
+    def generate_random_weights(graph : 'Graph', delete_cycle = True):
         """
         Fonction qui génère des poids aléatoires pour un graphe donnée
         :param graph: Un graphe orienté sans poids
@@ -135,7 +135,9 @@ class Graph:
                 random_graph.graph[vertex][i] = (neighboor[0], random_weight)
         random_graph.list_edges = list_edges
 
-        random_graph.delete_cycles()
+
+        if delete_cycle:
+            random_graph.delete_cycles()
 
         return random_graph
 
@@ -159,9 +161,29 @@ class Graph:
         new_graph.add_edges(liste_edges)
         new_graph = Graph.generate_random_weights(new_graph)
         return new_graph
+
+    @staticmethod
+    def generate_level_graph(nb_level):
+        """
+        This function creates a graph by levels as explained in the guestion 11
+        """
+        level_graph = Graph([i for i in range(nb_level * 4)])
+
+        edges = []
+        for i in range(nb_level-1):
+            next_level_vertexes = [(i*4)+4+k for k in range(4)]
+            for j in range(4):
+                for k in next_level_vertexes:
+                    edges.append(((i*4)+j, k, 1))
+        level_graph.add_edges(edges)
+
+        level_graph = Graph.generate_random_weights(level_graph, delete_cycle=False)
+
+        return level_graph
+
     
     @staticmethod
-    def compare_graph(size_graph:int,nb_edges:int,nb_graph_to_generate:int):
+    def compare_graph(size_graph:int,nb_edges:int,nb_graph_to_generate:int, delete_cyle = True):
         """
             Fonction qui compare les résultats de l'ordre glouton_fas avec un ordre aléatoire
             :param size_graph: taille du graph
@@ -170,9 +192,9 @@ class Graph:
         """
         source = 0
         # Génération d'un graph aléatoire
-        graph = Graph.generate_random_graph(size_graph=size_graph,nb_edges=nb_edges)
+        graph = Graph.generate_random_graph(size_graph=size_graph,nb_edges=nb_edges, delete_cyle=False)
         # Génération de graphes avec des poids aléatoires
-        train_test_graphs = Graph.generate_graphs_with_random_weights(graph,nb_graph_to_generate)
+        train_test_graphs = Graph.generate_graphs_with_random_weights(graph,nb_graph_to_generate, delete_cyle=False)
         # Récupération des graphes d'entrainement et de test
         train_graphs = train_test_graphs[:nb_graph_to_generate-1]
         test_graph = train_test_graphs[nb_graph_to_generate-1]
@@ -200,6 +222,36 @@ class Graph:
 
         return nb_iter_glouton, nb_iter_random
 
+    @staticmethod
+    def compare_graph(graph, nb_graph_to_generate):
+        source = 0
+        # Génération de graphes avec des poids aléatoires
+        train_test_graphs = Graph.generate_graphs_with_random_weights(graph, nb_graph_to_generate)
+        train_graphs = train_test_graphs[:nb_graph_to_generate - 1]
+        test_graph = train_test_graphs[nb_graph_to_generate - 1]
+        # Calcul de l'arborecence
+        paths = [graph.search_bellman_ford(source, None)[0] for graph in train_graphs]
+        # Unifier les arborecences
+        union_graph = Graph.unifiy_paths(paths, graph.list_vertex)
+        # Calcul de l'ordre avec glouton_fas
+        order = union_graph.glouton_fas()
+        # Génération d'un ordre aléatoire
+        random_order = Graph.generate_random_order(graph)
+        # delete cycles caused by orders
+        test_graph.delete_cycles(order)
+        test_graph.delete_cycles(random_order)
+        # Calcul de l'arborecence avec l'ordre glouton_fas
+        # Graph.show_graph(test_graph)
+        _, _, nb_iter_glouton, _ = test_graph.search_bellman_ford(source, order)
+        _, _, nb_iter_random, _ = test_graph.search_bellman_ford(source, random_order)
+
+        """
+        print(f"Ordre glouton_fas: {order}")
+        print(f"Nombre d'itérations avec glouton_fas: {nb_iter_glouton}")
+        print(f"Ordre aléatoire: {random_order}")
+        print(f"Nombre d'itérations avec un ordre aléatoire: {nb_iter_random}")"""
+
+        return nb_iter_glouton, nb_iter_random
 
     """
     ┌──────────────────────────────────────────────────────────────────────────┐
