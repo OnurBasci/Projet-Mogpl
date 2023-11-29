@@ -55,13 +55,12 @@ class Graph:
             :param graph: graph à afficher
             :return: None
         """
-        G = nx.Graph()
+        G = nx.DiGraph()
         # Ajout des sommets
         G.add_nodes_from(graph.list_vertex)
         # Ajout des arcs avec les poids
-        for edge in graph.list_edges:
-            u, v, weight = edge
-            G.add_edge(u, v, weight=weight)
+        new_list_edges = [(u,v) for u,v,w in graph.list_edges]
+        G.add_edges_from(new_list_edges)
         # Positionnement des sommets
         pos = nx.spring_layout(G)
         # Dessiner les sommets
@@ -74,16 +73,13 @@ class Graph:
 
 
     @staticmethod
-    def unifiy_paths(path : list,path2 : list,path3 : list,list_vertex : list) -> 'Graph':
+    def unifiy_paths(paths : list,list_vertex : list) -> 'Graph':
         """
         Fonction qui unifie les chemins pour créer un graph
-        :param path: chemin 1
-        :param path2: chemin 2
-        :param path3: chemin 3
+        :param paths: chemins des graphes
         :param list_vertex: liste des sommets
         :return: un graph
         """
-        
         # Initialisation des variables
         list_edges : list = []
         added_edges : dict = {}
@@ -95,14 +91,13 @@ class Graph:
                 vertex_1,vertex_2 = path[i],path[i+1]
                 if added_edges.get((vertex_1,vertex_2),None) is not None:
                     continue
-                list_edges.append((path[i],path[i+1],1))   #?? il faut ajouter des poids?
+                list_edges.append((path[i],path[i+1],1))
                 added_edges[(vertex_1,vertex_2)] = True
 
         # Ajout des arcs pour chaque chemin
-        for p_1,p_2,p_3 in zip(path,path2,path3):
-            add_edge_from_path(p_1)
-            add_edge_from_path(p_2)
-            add_edge_from_path(p_3)
+        for p_x in zip(*paths):
+            for p in p_x :
+                add_edge_from_path(p)
         # Création du graph
         new_graph = Graph(list_vertex)
         new_graph.add_edges(list_edges)
@@ -110,25 +105,105 @@ class Graph:
         return new_graph
     
     @staticmethod
+    def generate_graphs_with_random_weights(base_graph : 'Graph', nb_graph:int)->list['Graph']:
+        """
+        Fonction qui génère des graphes avec des poids aléatoires
+        :param base_graph: Un graphe orienté sans poids
+        :param nb_graph: nombre de graph à générer
+        :return: liste des graphes générés
+        """
+        graphs = []
+        for _ in range(nb_graph):
+            graphs.append(Graph.generate_random_weights(base_graph))
+        return graphs
+
+    @staticmethod
     def generate_random_weights(graph : 'Graph'):
         """
         Fonction qui génère des poids aléatoires pour un graphe donnée
         :param graph: Un graphe orienté sans poids
         :return: Creation d'un nouveau graphe avec des poids aléatoirement générés
         """
-        random_graph = deepcopy(graph)
-        list_edges = []
-        for vertex in random_graph.graph:
-            for i, neighboor in enumerate(random_graph.graph[vertex]):
-                random_weight = random.randint(-10, 10)
-                list_edges.append((vertex, neighboor[0], random_weight))
-                random_graph.graph[vertex][i] = (neighboor[0], random_weight)
-        random_graph.list_edges = list_edges
+        accepted = False
+        while not accepted : 
+            random_graph = deepcopy(graph)
+            list_edges = []
+            for vertex in random_graph.graph:
+                for i, neighboor in enumerate(random_graph.graph[vertex]):
+                    random_weight = random.randint(-10, 10)
+                    list_edges.append((vertex, neighboor[0], random_weight))
+                    random_graph.graph[vertex][i] = (neighboor[0], random_weight)
+            random_graph.list_edges = list_edges
+
+            cycle,_,_,state = random_graph.search_bellman_ford(0, None)
+            if state :
+                accepted = True
+            else:
+                # print("Cycle négatif détecté, re-génération des poids")
+                # print(f"Cycle: {cycle}")
+                for bad_vertex in cycle:
+                    for i, neighboor in enumerate(random_graph.graph[bad_vertex]):
+                        v,w = random_graph.graph[bad_vertex][i]
+                        random_graph.graph[bad_vertex][i] = (v, abs(w))
+
+                
         return random_graph
+    
     @staticmethod
     def generate_random_order(graph):
+        """
+        Fonction qui génère un ordre aléatoire pour un graphe donnée
+        """
         nb_elem = len(graph.list_vertex)
         return random.sample(range(nb_elem), nb_elem)
+    
+    @staticmethod
+    def generate_random_graph(size_graph : int,nb_edges : int) -> 'Graph':
+        """
+            Fonction qui génère un graph aléatoire d'une taile donnée
+        """
+        liste_vertex : list = [i for i in range(size_graph)]
+        liste_edges = [tuple(random.sample(liste_vertex,2)+[1]) for _ in range(nb_edges)]
+        new_graph = Graph(liste_vertex)
+        new_graph.add_edges(liste_edges)
+        new_graph = Graph.generate_random_weights(new_graph)
+        return new_graph
+    
+    @staticmethod
+    def compare_graph(size_graph:int,nb_edges:int,nb_graph_to_generate:int):
+        """
+            Fonction qui compare les résultats de l'ordre glouton_fas avec un ordre aléatoire
+            :param size_graph: taille du graph
+            :param nb_edges: nombre d'arcs
+            :param nb_graph_to_generate: nombre de graph à générer
+        """
+        source = 0
+        # Génération d'un graph aléatoire
+        graph = Graph.generate_random_graph(size_graph=size_graph,nb_edges=nb_edges)
+        # Génération de graphes avec des poids aléatoires
+        train_test_graphs = Graph.generate_graphs_with_random_weights(graph,nb_graph_to_generate)
+        # Récupération des graphes d'entrainement et de test
+        train_graphs = train_test_graphs[:nb_graph_to_generate-1]
+        test_graph = train_test_graphs[nb_graph_to_generate-1]
+        # Calcul de l'arborecence 
+        paths = [graph.search_bellman_ford(source,None)[0] for graph in train_graphs]
+        # Unifier les arborecences
+        union_graph = Graph.unifiy_paths(paths,graph.list_vertex)
+        # Calcul de l'ordre avec glouton_fas
+        order = union_graph.glouton_fas()
+        # Génération d'un ordre aléatoire
+        random_order = Graph.generate_random_order(graph)
+        # Calcul de l'arborecence avec l'ordre glouton_fas
+        Graph.show_graph(test_graph)
+        _,_,nb_iter_glouton,_ = test_graph.search_bellman_ford(source,order)
+        _,_,nb_iter_random,_ = test_graph.search_bellman_ford(source,random_order)
+
+        print(f"Ordre glouton_fas: {order}")
+        print(f"Nombre d'itérations avec glouton_fas: {nb_iter_glouton}")
+        print(f"Ordre aléatoire: {random_order}")
+        print(f"Nombre d'itérations avec un ordre aléatoire: {nb_iter_random}")
+
+
     """
     ┌──────────────────────────────────────────────────────────────────────────┐
     │ Fonction de la classe                                                    │
@@ -188,11 +263,13 @@ class Graph:
             # Pour chaque sommet dans l'ordre donné
             for vertex in vertex_order:
                 # Si le sommet n'est pas encore accessible, on passe
-                if self.distances[i-1,vertex] == np.inf:
-                    continue
+                # if self.distances[i-1,vertex] == np.inf:
+                #     continue
                 # Sinon, on met à jour les distances pour chaque voisins 
                 for neighbor, weight in self.graph[vertex]:
                     new_distance = self.distances[i-1,vertex] + weight
+                    # new_distance = self.distances[i,vertex] + weight
+                    
                     if new_distance < self.distances[i,neighbor]:
                         # On met à jour la distance du voisin
                         self.distances[i,neighbor] = new_distance
@@ -200,25 +277,44 @@ class Graph:
                         self.predecessors[i, neighbor] = vertex
 
             self.nb_iter += 1
-            # Si il y a un cyle à poids negatif, on retourne
-            if self.nb_iter > len(vertex_order):
-                return
-
             # # Si les distances n'ont pas changé, on arrête l'algorithme
             if np.array_equal(self.distances[i,:],self.distances[i-1,:]):
                 break
-            #print(self.nb_iter)
 
-        self.paths = self._reconstruct_path(source_vertex)
-        return self.paths,self.distances,self.nb_iter
+        pre_paths,state = self._reconstruct_path(source_vertex)
+        if state:
+            self.paths = pre_paths
+            return self.paths,self.distances,self.nb_iter,True
+        else:
+            cycle = pre_paths
+            return cycle,None,None,False
+
     
+    def _find_negative_cycle(self, path : list) -> int:
+        """
+            Fonction qui trouve un cycle à poids négatif
+            :param path: chemin
+            :return: nombre d'itérations
+        """
+        already_seen = {}
+        index_cycle = -1
+        for i,value in enumerate(path):
+            if value in already_seen:
+                index_cycle = i
+                break
+            already_seen[value] = i
+
+        i_start_cycle = already_seen[path[index_cycle]]
+        cycle = path[i_start_cycle:index_cycle]    
+        return cycle
+
     def _reconstruct_path(self, source_vertex : int ) -> list:
         """
             Fonction qui reconstruit les chemins à partir des prédecesseurs
             :param source_vertex: sommet de départ
             :return: liste des chemins
         """
-
+        MAX_LENGTH = len(self.list_vertex)-1
         paths : list = []
         # Pour chaque sommet
         for vertex in self.vertex_order:
@@ -232,11 +328,15 @@ class Graph:
             while current_vertex != source_vertex:
                 # On ajoute le sommet au chemin
                 path.append(current_vertex)
+                if len(path) > MAX_LENGTH:
+                    cycle = self._find_negative_cycle(path)
+                    return cycle,False
+
                 # On récupère le prédecesseur du sommet
                 current_vertex = int(self.predecessors[self.nb_iter,current_vertex])
             path.append(source_vertex)
             paths.append(path[::-1])
-        return paths
+        return paths,True
 
     def show_bellmanford_result(self):
         """
@@ -280,7 +380,6 @@ class Graph:
             :return: <Ajourter la description>
         """
         #remove vertex
-        print(self.graph[vertex_to_delete])
         del self.graph[vertex_to_delete]
         #remove precedents
         for vertex in self.graph.keys():

@@ -33,11 +33,7 @@ def question_3(graph : Graph) -> (Graph,Graph,Graph):
     """
         A partir de G construire 3 graphes ponder ́es G1,G2,G3 ainsi que le graphe test H.
     """
-    g1 = Graph.generate_random_weights(graph)
-    g2 = Graph.generate_random_weights(graph)
-    g3 = Graph.generate_random_weights(graph)
-    H = Graph.generate_random_weights(graph)
-
+    g1, g2, g3, H = Graph.generate_graphs_with_random_weights(graph,4)
     #Graph.show_graph(g1)
     #Graph.show_graph(g2)
     #Graph.show_graph(g3)
@@ -47,24 +43,21 @@ def question_3(graph : Graph) -> (Graph,Graph,Graph):
 
 def question_4(graph_1: Graph, graph_2: Graph, graph_3: Graph):
     """
-        Etant donn es les 3 graphes G1,G2,G3 (g ́en ́er ́es dans la question 3), appliquer
+        Etant donnes les 3 graphes G1,G2,G3 (g ́en ́er ́es dans la question 3), appliquer
         l'algorithme Bellman-Ford dans chacun de ces graphes et d ́eterminer l'union de leurs arborescences
         des plus courts chemins que l'on appelera T.
     """
-    print(0)
-    path_1,_,_ = graph_1.search_bellman_ford(0,None)
-    print(1)
-    path_2,_,_ = graph_2.search_bellman_ford(0,None)
-    print(2)
-    path_3,_,_ = graph_3.search_bellman_ford(0,None)
-    print(3)
-    union_T : Graph = Graph.unifiy_paths(path_1,path_2,path_3, graph_1.list_vertex)
 
-    return union_T
+    path_1,_,_,_ = graph_1.search_bellman_ford(0,None)
+    path_2,_,_,_ = graph_2.search_bellman_ford(0,None)
+    path_3,_,_,_ = graph_3.search_bellman_ford(0,None)
+    union_T : Graph = Graph.unifiy_paths([path_1,path_2,path_3], graph_1.list_vertex)
+
+    return union_T  
 
 def question_5(union_T):
     """
-     Appliquer l’algorithme GloutonFas avec comme entrée T et retourner un ordre <tot.
+     Appliquer l'algorithme GloutonFas avec comme entrée T et retourner un ordre <tot.
     """
     print("Question 5: Calcul de l'ordre pour le graphe d'union")
     ordre = union_T.glouton_fas()
@@ -73,15 +66,15 @@ def question_5(union_T):
 
 def question_6(H, ordre):
     """
-    Pour le graphe H généré à la question 3 appliquer l’algorithme Bellman-Ford en
-    utilisant l’ordre <tot.
+    Pour le graphe H généré à la question 3 appliquer l'algorithme Bellman-Ford en
+    utilisant l'ordre <tot.
     """
     print("Question 6: Application de Bellman Ford à H")
-    return H.search_bellman_ford(0, ordre)
+    return H.search_bellman_ford(0,ordre)
 
 def question_7(graph):
     """
-     Pour le graphe H appliquer l’algorithm Bellman-Ford en utilisant un ordre tiré
+     Pour le graphe H appliquer l'algorithm Bellman-Ford en utilisant un ordre tiré
     aléatoirement (de manière uniforme).
     """
     ordre = Graph.generate_random_order(graph)
@@ -89,25 +82,50 @@ def question_7(graph):
 
 def question_8(Bellman_H, Bellman_H_random):
     """
-     Comparer les résultats (nombre d’itérations) obtenus dans les questions 6 et 7.
+     Comparer les résultats (nombre d'itérations) obtenus dans les questions 6 et 7.
     """
     print("Comparaison Bellman avec prétraitement et Bellman avec un ordre aléatoire")
     if not(Bellman_H) or not(Bellman_H_random):
         return
-    print(f"Nb itération, Bellman avec prétraitement: {Bellman_H[1]}")
-    print(f"Nb itération, Bellman avec un ordre aléatoire: {Bellman_H_random[1]}")
+    print(f"Nb itération, Bellman avec prétraitement: {Bellman_H[2]}")
+    print(f"Nb itération, Bellman avec un ordre aléatoire: {Bellman_H_random[2]}")
+
+def question_9():
+    """
+        Génerer des instances al ́eatoires pour tester la m ́ethode avec pr ́etraitement par rap-
+        port `a l'application de l'algorithme de Bellman-Ford bas ́ee simplement sur un ordre tir e de manièere
+        aléatoire
+    """
+    nb_graphs = 4
+    nb_vertex = 50
+    nb_edges = nb_vertex*3
+    Graph.compare_graph(nb_vertex,nb_edges,nb_graphs)
+
 
 def main():
+    """
+        Fonction principale qui regroupe tous les appels aux fonctions des questions
+    """
+    # Graph de base
     my_graph = get_base_graph()
+    # Question 1
     question_1(my_graph)
+    # Question 2
     question_2(my_graph)
+    # Question 3
     g1,g2,g3,H = question_3(my_graph)
+    # Question 4
     union_T = question_4(g1,g2,g3)
+    # Question 5
     ordre = question_5(union_T)
+    # Question 6
     Bellman_H = question_6(H, ordre)
+    # Question 7
     Bellman_H_random = question_7(H)
+    # Question 8
     question_8(Bellman_H, Bellman_H_random)
-
+    # Question 9
+    question_9()
 
 
 if __name__ == "__main__":
