@@ -1,4 +1,5 @@
 from graph import Graph
+from analyse import anlayse_nb_iter_by_nb_trainGraph
 
 def get_base_graph() -> Graph :
     """ 
@@ -96,10 +97,12 @@ def question_9():
         port `a l'application de l'algorithme de Bellman-Ford bas ́ee simplement sur un ordre tir e de manièere
         aléatoire
     """
-    nb_graphs = 4
-    nb_vertex = 50
-    nb_edges = nb_vertex*3
+    nb_graphs = 7
+    nb_vertex = 100
+    nb_edges = nb_vertex*4
     Graph.compare_graph(nb_vertex,nb_edges,nb_graphs)
+
+
 
 
 def main():
@@ -107,7 +110,7 @@ def main():
         Fonction principale qui regroupe tous les appels aux fonctions des questions
     """
     # Graph de base
-    my_graph = get_base_graph()
+    """my_graph = get_base_graph()
     # Question 1
     question_1(my_graph)
     # Question 2
@@ -125,7 +128,8 @@ def main():
     # Question 8
     question_8(Bellman_H, Bellman_H_random)
     # Question 9
-    question_9()
+    question_9()"""
+    anlayse_nb_iter_by_nb_trainGraph(7,100,400, 20, 10)
 
 
 if __name__ == "__main__":

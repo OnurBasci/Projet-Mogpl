@@ -124,30 +124,21 @@ class Graph:
         :param graph: Un graphe orienté sans poids
         :return: Creation d'un nouveau graphe avec des poids aléatoirement générés
         """
-        accepted = False
-        while not accepted : 
-            random_graph = deepcopy(graph)
-            list_edges = []
-            for vertex in random_graph.graph:
-                for i, neighboor in enumerate(random_graph.graph[vertex]):
-                    random_weight = random.randint(-10, 10)
-                    list_edges.append((vertex, neighboor[0], random_weight))
-                    random_graph.graph[vertex][i] = (neighboor[0], random_weight)
-            random_graph.list_edges = list_edges
 
-            cycle,_,_,state = random_graph.search_bellman_ford(0, None)
-            if state :
-                accepted = True
-            else:
-                # print("Cycle négatif détecté, re-génération des poids")
-                # print(f"Cycle: {cycle}")
-                for bad_vertex in cycle:
-                    for i, neighboor in enumerate(random_graph.graph[bad_vertex]):
-                        v,w = random_graph.graph[bad_vertex][i]
-                        random_graph.graph[bad_vertex][i] = (v, abs(w))
+        #generate random graph
+        random_graph = deepcopy(graph)
+        list_edges = []
+        for vertex in random_graph.graph:
+            for i, neighboor in enumerate(random_graph.graph[vertex]):
+                random_weight = random.randint(-10, 10)
+                list_edges.append((vertex, neighboor[0], random_weight))
+                random_graph.graph[vertex][i] = (neighboor[0], random_weight)
+        random_graph.list_edges = list_edges
 
-                
+        random_graph.delete_cycles()
+
         return random_graph
+
     
     @staticmethod
     def generate_random_order(graph):
@@ -193,15 +184,21 @@ class Graph:
         order = union_graph.glouton_fas()
         # Génération d'un ordre aléatoire
         random_order = Graph.generate_random_order(graph)
+        #delete cycles caused by orders
+        test_graph.delete_cycles(order)
+        test_graph.delete_cycles(random_order)
         # Calcul de l'arborecence avec l'ordre glouton_fas
-        Graph.show_graph(test_graph)
+        #Graph.show_graph(test_graph)
         _,_,nb_iter_glouton,_ = test_graph.search_bellman_ford(source,order)
         _,_,nb_iter_random,_ = test_graph.search_bellman_ford(source,random_order)
 
+        """
         print(f"Ordre glouton_fas: {order}")
         print(f"Nombre d'itérations avec glouton_fas: {nb_iter_glouton}")
         print(f"Ordre aléatoire: {random_order}")
-        print(f"Nombre d'itérations avec un ordre aléatoire: {nb_iter_random}")
+        print(f"Nombre d'itérations avec un ordre aléatoire: {nb_iter_random}")"""
+
+        return nb_iter_glouton, nb_iter_random
 
 
     """
@@ -260,6 +257,8 @@ class Graph:
 
         # Max itération de l'algorithme de Bellman-Ford
         for i in range(1, len(vertex_order)-1):
+            self.distances[i] = self.distances[i-1]
+            self.predecessors[i] = self.predecessors[i-1]
             # Pour chaque sommet dans l'ordre donné
             for vertex in vertex_order:
                 # Si le sommet n'est pas encore accessible, on passe
@@ -270,7 +269,7 @@ class Graph:
                     new_distance = self.distances[i-1,vertex] + weight
                     # new_distance = self.distances[i,vertex] + weight
                     
-                    if new_distance < self.distances[i,neighbor]:
+                    if new_distance < self.distances[i-1,neighbor]:
                         # On met à jour la distance du voisin
                         self.distances[i,neighbor] = new_distance
                         # On met à jour le prédecesseur du voisin
@@ -281,7 +280,7 @@ class Graph:
             if np.array_equal(self.distances[i,:],self.distances[i-1,:]):
                 break
 
-        pre_paths,state = self._reconstruct_path(source_vertex)
+        pre_paths,state = self._reconstruct_path(source_vertex, vertex_order)
         if state:
             self.paths = pre_paths
             return self.paths,self.distances,self.nb_iter,True
@@ -308,7 +307,7 @@ class Graph:
         cycle = path[i_start_cycle:index_cycle]    
         return cycle
 
-    def _reconstruct_path(self, source_vertex : int ) -> list:
+    def _reconstruct_path(self, source_vertex : int, vertex_order=None) -> list:
         """
             Fonction qui reconstruit les chemins à partir des prédecesseurs
             :param source_vertex: sommet de départ
@@ -317,7 +316,7 @@ class Graph:
         MAX_LENGTH = len(self.list_vertex)-1
         paths : list = []
         # Pour chaque sommet
-        for vertex in self.vertex_order:
+        for vertex in vertex_order:
             # Si le sommet n'est pas accessible, on passe
             if self.distances[self.nb_iter,vertex] == np.inf:
                 continue
@@ -337,6 +336,7 @@ class Graph:
             path.append(source_vertex)
             paths.append(path[::-1])
         return paths,True
+
 
     def show_bellmanford_result(self):
         """
@@ -424,3 +424,28 @@ class Graph:
                 graphe.delete_vertex(u_max)
         s1.extend(s2)
         return s1
+
+    def delete_cycles(self, vertex_order=None):
+        """
+        remove negatif cycles until there is none
+        """
+        accepted = False
+        while not accepted:
+
+            cycle, _, _, state = self.search_bellman_ford(0, vertex_order)
+            if state:
+                accepted = True
+            else:
+                # print("Cycle négatif détecté, re-génération des poids")
+                # print(f"Cycle: {cycle}")
+                self.delete_negatif_cyle(cycle)
+
+    def delete_negatif_cyle(self, cycle):
+        """
+        set all weights of edges between the vertex of the cycle and it's neighboors to positif
+        """
+        for k, bad_vertex in enumerate(cycle):
+            for i, neighboor in enumerate(self.graph[bad_vertex]):
+                # print(f"bad weight: {random_graph.graph[bad_vertex][i][1]}")
+                v, w = self.graph[bad_vertex][i]
+                self.graph[bad_vertex][i] = (v, abs(w))
