@@ -38,7 +38,7 @@ class Graph:
         # distances pour l'algorithm de Bellman-Ford
         self.distances : np.ndarray = np.full(len(self.list_vertex), np.inf)
         # prédecesseurs pour l'algorithm de Bellman-Ford
-        self.paths : list = [[] for _ in range(len(self.list_vertex))]  # Initialize paths as empty lists
+        self.paths : list = None  
         # nombre d'itérations pour l'algorithm de Bellman-Ford
         self.nb_iter : int = 0
 
@@ -83,9 +83,9 @@ class Graph:
         added_edges : dict = {}
         # Fonction qui ajoute un arc au graph si il n'existe pas déjà
         def add_edge_from_path(path):
-            if len(path) <= 1:
+            if path.size <= 1:
                 return
-            for i in range(0,len(path)-1):
+            for i in range(0,path.size-1):
                 vertex_1,vertex_2 = path[i],path[i+1]
                 if added_edges.get((vertex_1,vertex_2),None) is not None:
                     continue
@@ -103,7 +103,7 @@ class Graph:
         return new_graph
     
     @staticmethod
-    def generate_graphs_with_random_weights(base_graph : 'Graph', nb_graph:int, delete_cycle : bool= True):
+    def generate_graphs_with_random_weights(base_graph : 'Graph', nb_graph:int):
         """
         Fonction qui génère des graphes avec des poids aléatoires
         :param base_graph: Un graphe orienté sans poids
@@ -112,29 +112,28 @@ class Graph:
         """
         graphs = []
         for _ in range(nb_graph):
-            graphs.append(Graph.generate_random_weights(base_graph, delete_cycle=delete_cycle))
+            graphs.append(Graph.generate_random_weights(base_graph))
         return graphs
 
     @staticmethod
-    def generate_random_weights(graph : 'Graph', delete_cycle = True):
+    def generate_random_weights(graph : 'Graph'):
         """
         Fonction qui génère des poids aléatoires pour un graphe donnée
         :param graph: Un graphe orienté sans poids
         :return: Creation d'un nouveau graphe avec des poids aléatoirement générés
         """
 
-        #generate random graph
         random_graph = deepcopy(graph)
-        list_edges = []
-        for vertex in graph.list_vertex:
-            for neighbor,_ in graph.graph[vertex]:
-                random_weight = random.randint(-10, 10)
-                list_edges.append((vertex, neighbor, random_weight))
-        
-        random_graph.add_edges(list_edges)
-
-        # if delete_cycle:
-        #     random_graph.delete_cycles()
+        not_accepted = False
+        while not_accepted : 
+            list_edges = []
+            for vertex in graph.list_vertex:
+                for neighbor,_ in graph.graph[vertex]:
+                    random_weight = random.randint(-10, 10)
+                    list_edges.append((vertex, neighbor, random_weight))
+            
+            random_graph.add_edges(list_edges)
+            _,_,_,not_accepted = random_graph.bellman_ford(0,None)
 
         return random_graph
 
@@ -173,13 +172,13 @@ class Graph:
                 for k in next_level_vertexes:
                     edges.append(((i*4)+j, k, 1))
         level_graph.add_edges(edges)
-        level_graph = Graph.generate_random_weights(level_graph, delete_cycle=False)
+        level_graph = Graph.generate_random_weights(level_graph)
 
         return level_graph
 
     
     @staticmethod
-    def generate_compare_graph(size_graph:int,nb_edges:int,nb_graph_to_generate:int, delete_cycle = True):
+    def generate_compare_graph(size_graph:int,nb_edges:int,nb_graph_to_generate:int):
         """
             Fonction qui compare les résultats de l'ordre glouton_fas avec un ordre aléatoire
             :param size_graph: taille du graph
@@ -190,7 +189,7 @@ class Graph:
         # Génération d'un graph aléatoire
         graph = Graph.generate_random_graph(size_graph=size_graph,nb_edges=nb_edges)
         # Génération de graphes avec des poids aléatoires
-        train_test_graphs = Graph.generate_graphs_with_random_weights(graph,nb_graph_to_generate, delete_cycle=delete_cycle)
+        train_test_graphs = Graph.generate_graphs_with_random_weights(graph,nb_graph_to_generate)
         # Récupération des graphes d'entrainement et de test
         train_graphs = train_test_graphs[:nb_graph_to_generate-1]
         test_graph = train_test_graphs[nb_graph_to_generate-1]
@@ -202,9 +201,6 @@ class Graph:
         order = union_graph.glouton_fas()
         # Génération d'un ordre aléatoire
         random_order = Graph.generate_random_order(graph)
-        #delete cycles caused by orders
-        test_graph.delete_cycles(order)
-        test_graph.delete_cycles(random_order)
         # Calcul de l'arborecence avec l'ordre glouton_fas
         #Graph.show_graph(test_graph)
         _,_,nb_iter_glouton,_ = test_graph.bellman_ford(source,order)
@@ -222,7 +218,7 @@ class Graph:
     def compare_graph(graph, nb_graph_to_generate):
         source = 0
         # Génération de graphes avec des poids aléatoires
-        train_test_graphs = Graph.generate_graphs_with_random_weights(graph, nb_graph_to_generate,delete_cycle=False)
+        train_test_graphs = Graph.generate_graphs_with_random_weights(graph, nb_graph_to_generate)
         train_graphs = train_test_graphs[:nb_graph_to_generate - 1]
         test_graph = train_test_graphs[nb_graph_to_generate - 1]
         # Calcul de l'arborecence
@@ -233,9 +229,6 @@ class Graph:
         order = union_graph.glouton_fas()
         # Génération d'un ordre aléatoire
         random_order = Graph.generate_random_order(graph)
-        # delete cycles caused by orders
-        test_graph.delete_cycles(order)
-        test_graph.delete_cycles(random_order)
         # Calcul de l'arborecence avec l'ordre glouton_fas
         # Graph.show_graph(test_graph)
         _, _, nb_iter_glouton, _ = test_graph.bellman_ford(source, order)
@@ -294,9 +287,11 @@ class Graph:
 
         # Initialiser la distance du sommet source à 0
         self.distances[source_vertex] = 0
+        self.paths =  [[source_vertex] for _ in range(len(self.list_vertex))] 
 
         # Relaxer les arcs répétitivement
         for _ in range(len(self.list_vertex) - 1):
+            no_updates = True
             for vertex in vertex_order :
                 for neighbor, weight in self.graph[vertex]:
                     if self.distances[vertex] != np.inf and self.distances[vertex] + weight < self.distances[neighbor]:
@@ -402,32 +397,3 @@ class Graph:
                 graphe.delete_vertex(u_max)
         s1.extend(s2)
         return s1
-
-    def delete_cycles(self, vertex_order=None):
-        """
-        remove negatif cycles until there is none
-        """
-        print("[INFO] Suppression des cycles négatifs")
-        accepted = False
-        while not accepted:
-            # Graph.show_graph(self)
-            _, _, _, state = self.bellman_ford(0, vertex_order)
-            Graph.show_graph(self)
-            if state:
-                accepted = True
-                
-
-    def delete_negatif_cyle(self, cycle):
-        """
-        set all weights of edges between the vertex of the cycle and it's neighboors to positif
-        """
-
-        
-        print("[INFO] Re-génération des poids")
-        for k, bad_vertex in enumerate(cycle):
-            for i, neighboor in enumerate(self.graph[bad_vertex]):
-                # print(f"bad weight: {random_graph.graph[bad_vertex][i][1]}")
-                v, w = self.graph[bad_vertex][i]
-                self.graph[bad_vertex][i] = (v, abs(w))
-                self.list_edges.remove((bad_vertex, v, w))
-                self.list_edges.append((bad_vertex, v, abs(w)))
