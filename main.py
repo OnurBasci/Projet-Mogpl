@@ -19,6 +19,7 @@ def question_1(graph : Graph) -> None:
     """
     graph.search_bellman_ford(0,None)
     graph.show_bellmanford_result()
+    print("[INFO] Question 1 terminée\n")
 
 def question_2(graph : Graph) -> list:
     """
@@ -27,6 +28,7 @@ def question_2(graph : Graph) -> list:
     """
     ordre = graph.glouton_fas()
     print("=========================\n")	
+    print("[INFO] Question 2 terminée\n")
     print(f"[INFO] Ordre obtenu : {ordre}")
     return ordre
 
@@ -39,6 +41,7 @@ def question_3(graph : Graph) -> (Graph,Graph,Graph):
     #Graph.show_graph(g2)
     #Graph.show_graph(g3)
     #Graph.show_graph(H)
+    print("[INFO] Question 3 terminée\n")
 
     return g1, g2, g3, H
 
@@ -48,12 +51,12 @@ def question_4(graph_1: Graph, graph_2: Graph, graph_3: Graph):
         l'algorithme Bellman-Ford dans chacun de ces graphes et d ́eterminer l'union de leurs arborescences
         des plus courts chemins que l'on appelera T.
     """
-
+    Graph.show_graph(graph_1)
     path_1,_,_,_ = graph_1.search_bellman_ford(0,None)
     path_2,_,_,_ = graph_2.search_bellman_ford(0,None)
     path_3,_,_,_ = graph_3.search_bellman_ford(0,None)
     union_T : Graph = Graph.unifiy_paths([path_1,path_2,path_3], graph_1.list_vertex)
-
+    print("[INFO] Question 4 terminée\n")
     return union_T  
 
 def question_5(union_T):
@@ -79,7 +82,9 @@ def question_7(graph):
     aléatoirement (de manière uniforme).
     """
     ordre = Graph.generate_random_order(graph)
-    return graph.search_bellman_ford(0, ordre)
+    path,dist,nb_iter,state = graph.search_bellman_ford(0, ordre)
+    print("[INFO] Question 7 terminée\n")
+    return path,dist,nb_iter,state
 
 def question_8(Bellman_H, Bellman_H_random):
     """
@@ -90,6 +95,7 @@ def question_8(Bellman_H, Bellman_H_random):
         return
     print(f"Nb itération, Bellman avec prétraitement: {Bellman_H[2]}")
     print(f"Nb itération, Bellman avec un ordre aléatoire: {Bellman_H_random[2]}")
+    print("[INFO] Question 8 terminée\n")
 
 def question_9():
     """
@@ -101,6 +107,7 @@ def question_9():
     nb_vertex = 100
     nb_edges = nb_vertex*4
     Graph.generate_compare_graph(nb_vertex,nb_edges,nb_graphs)
+    print("[INFO] Question 9 terminée\n")
 
 def question_10():
     """
@@ -109,6 +116,7 @@ def question_10():
     """
     print("Question 10")
     anlayse_nb_iter_by_nb_trainGraph(nb_vertex=100, nb_edges=400, nb_repetitions=20, max_nb_trainGraph=10)
+    print("[INFO] Question 10 terminée\n")
 
 def question_11():
     """
@@ -120,6 +128,7 @@ def question_11():
     """
     level_graphe = Graph.generate_level_graph(2500)
     calclulate_mean_nb_iter(graphe=level_graphe, nb_repetition=1)
+    print("[INFO] Question 11 terminée\n")
 
 
 

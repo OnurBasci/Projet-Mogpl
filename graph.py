@@ -128,16 +128,15 @@ class Graph:
         #generate random graph
         random_graph = deepcopy(graph)
         list_edges = []
-        for vertex in random_graph.graph:
-            for i, neighboor in enumerate(random_graph.graph[vertex]):
+        for vertex in graph.list_vertex:
+            for neighbor,_ in graph.graph[vertex]:
                 random_weight = random.randint(-10, 10)
-                list_edges.append((vertex, neighboor[0], random_weight))
-                random_graph.graph[vertex][i] = (neighboor[0], random_weight)
-        random_graph.list_edges = list_edges
+                list_edges.append((vertex, neighbor, random_weight))
+        
+        random_graph.add_edges(list_edges)
 
-
-        if delete_cycle:
-            random_graph.delete_cycles()
+        # if delete_cycle:
+        #     random_graph.delete_cycles()
 
         return random_graph
 
@@ -301,37 +300,38 @@ class Graph:
         self.nb_iter = 0
         nb_vertices = len(vertex_order)
         # initialisation des distances et des prédecesseurs
-        self.distances = np.zeros((nb_vertices-1,nb_vertices))
+        self.distances = np.zeros((nb_vertices+1,nb_vertices))
         self.distances.fill(np.inf)
         self.distances[:,source_vertex] = 0
         self.predecessors = np.zeros(self.distances.shape)-1
 
         # Max itération de l'algorithme de Bellman-Ford
-        for i in range(1, len(vertex_order)-1):
-            self.distances[i] = self.distances[i-1]
-            self.predecessors[i] = self.predecessors[i-1]
+        for i in range(1, len(vertex_order)+1):
+            # self.distances[i] = self.distances[i-1].copy()
+            # self.predecessors[i] = self.predecessors[i-1].copy()            
             # Pour chaque sommet dans l'ordre donné
             for vertex in vertex_order:
                 for neighbor, weight in self.graph[vertex]:
-                    new_distance = self.distances[i-1,vertex] + weight
+                    new_distance = self.distances[i,vertex] + weight
                     if new_distance < self.distances[i-1,neighbor]:
                         # On met à jour la distance du voisin
                         self.distances[i,neighbor] = new_distance
                         # On met à jour le prédecesseur du voisin
                         self.predecessors[i, neighbor] = vertex
 
+
             self.nb_iter += 1
             # # Si les distances n'ont pas changé, on arrête l'algorithme
             if np.array_equal(self.distances[i,:],self.distances[i-1,:]):
                 break
+            if i == len(vertex_order):
+                print(self.distances)
+                return None, None, None, False
+            
+  
+        self.paths = self._reconstruct_path(source_vertex, vertex_order)
+        return self.paths,self.distances,self.nb_iter,True
 
-        pre_paths,state = self._reconstruct_path(source_vertex, vertex_order)
-        if state:
-            self.paths = pre_paths
-            return self.paths,self.distances,self.nb_iter,True
-        else:
-            cycle = pre_paths
-            return cycle,None,None,False
 
     
     def _find_negative_cycle(self, path : list) -> int:
@@ -358,7 +358,6 @@ class Graph:
             :param source_vertex: sommet de départ
             :return: liste des chemins
         """
-        MAX_LENGTH = len(self.list_vertex)-1
         paths : list = []
         # Pour chaque sommet
         for vertex in vertex_order:
@@ -370,17 +369,15 @@ class Graph:
             current_vertex = vertex
             # Tant qu'on est pas arrivé au sommet de départ
             while current_vertex != source_vertex:
+                print(path)
                 # On ajoute le sommet au chemin
                 path.append(current_vertex)
-                if len(path) > MAX_LENGTH:
-                    cycle = self._find_negative_cycle(path)
-                    return cycle,False
-
                 # On récupère le prédecesseur du sommet
                 current_vertex = int(self.predecessors[self.nb_iter,current_vertex])
+      
             path.append(source_vertex)
             paths.append(path[::-1])
-        return paths,True
+        return paths
 
 
     def show_bellmanford_result(self):
@@ -474,23 +471,27 @@ class Graph:
         """
         remove negatif cycles until there is none
         """
+        print("[INFO] Suppression des cycles négatifs")
         accepted = False
         while not accepted:
-
-            cycle, _, _, state = self.search_bellman_ford(0, vertex_order)
+            # Graph.show_graph(self)
+            _, _, _, state = self.search_bellman_ford(0, vertex_order)
+            Graph.show_graph(self)
             if state:
                 accepted = True
-            else:
-                # print("Cycle négatif détecté, re-génération des poids")
-                # print(f"Cycle: {cycle}")
-                self.delete_negatif_cyle(cycle)
+                
 
     def delete_negatif_cyle(self, cycle):
         """
         set all weights of edges between the vertex of the cycle and it's neighboors to positif
         """
+
+        
+        print("[INFO] Re-génération des poids")
         for k, bad_vertex in enumerate(cycle):
             for i, neighboor in enumerate(self.graph[bad_vertex]):
                 # print(f"bad weight: {random_graph.graph[bad_vertex][i][1]}")
                 v, w = self.graph[bad_vertex][i]
                 self.graph[bad_vertex][i] = (v, abs(w))
+                self.list_edges.remove((bad_vertex, v, w))
+                self.list_edges.append((bad_vertex, v, abs(w)))
