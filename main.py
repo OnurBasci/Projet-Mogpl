@@ -37,11 +37,7 @@ def question_3(graph : Graph) -> (Graph,Graph,Graph):
         A partir de G construire 3 graphes ponder ́es G1,G2,G3 ainsi que le graphe test H.
     """
     g1, g2, g3, H = Graph.generate_graphs_with_random_weights(graph,4)
-    
-    #Graph.show_graph(g1)
-    #Graph.show_graph(g2)
-    #Graph.show_graph(g3)
-    #Graph.show_graph(H)
+
     print("[INFO] Question 3 terminée\n")
 
     return g1, g2, g3, H
@@ -55,7 +51,8 @@ def question_4(graph_1: Graph, graph_2: Graph, graph_3: Graph):
     path_1,_,_,_ = graph_1.bellman_ford(0,None)
     path_2,_,_,_ = graph_2.bellman_ford(0,None)
     path_3,_,_,_ = graph_3.bellman_ford(0,None)
-    Graph.show_graph(graph_1)
+
+
     union_T : Graph = Graph.unifiy_paths([path_1,path_2,path_3], graph_1.list_vertex)
     print("[INFO] Question 4 terminée\n")
     return union_T  
@@ -82,7 +79,6 @@ def question_7(graph):
      Pour le graphe H appliquer l'algorithm Bellman-Ford en utilisant un ordre tiré
     aléatoirement (de manière uniforme).
     """
-    Graph.show_graph(graph)
     ordre = Graph.generate_random_order(graph)
     path,dist,nb_iter,state = graph.bellman_ford(0, ordre)
     print("[INFO] Question 7 terminée\n")
@@ -105,8 +101,8 @@ def question_9():
         port `a l'application de l'algorithme de Bellman-Ford bas ́ee simplement sur un ordre tir e de manièere
         aléatoire
     """
-    nb_graphs = 7
-    nb_vertex = 30
+    nb_graphs = 10
+    nb_vertex = 100
     nb_edges = nb_vertex*2
     Graph.generate_compare_graph(nb_vertex,nb_edges,nb_graphs)
     print("[INFO] Question 9 terminée\n")
@@ -142,7 +138,7 @@ def main():
     # Graph de base
     my_graph = get_base_graph()
     # Question 1
-    question_1(my_graph)
+    #question_1(my_graph)
     # Question 2
     question_2(my_graph)
     # Question 3
