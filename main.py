@@ -55,6 +55,7 @@ def question_4(graph_1: Graph, graph_2: Graph, graph_3: Graph):
     path_1,_,_,_ = graph_1.bellman_ford(0,None)
     path_2,_,_,_ = graph_2.bellman_ford(0,None)
     path_3,_,_,_ = graph_3.bellman_ford(0,None)
+    Graph.show_graph(graph_1)
     union_T : Graph = Graph.unifiy_paths([path_1,path_2,path_3], graph_1.list_vertex)
     print("[INFO] Question 4 terminée\n")
     return union_T  
@@ -81,6 +82,7 @@ def question_7(graph):
      Pour le graphe H appliquer l'algorithm Bellman-Ford en utilisant un ordre tiré
     aléatoirement (de manière uniforme).
     """
+    Graph.show_graph(graph)
     ordre = Graph.generate_random_order(graph)
     path,dist,nb_iter,state = graph.bellman_ford(0, ordre)
     print("[INFO] Question 7 terminée\n")
@@ -104,8 +106,8 @@ def question_9():
         aléatoire
     """
     nb_graphs = 7
-    nb_vertex = 100
-    nb_edges = nb_vertex*4
+    nb_vertex = 30
+    nb_edges = nb_vertex*2
     Graph.generate_compare_graph(nb_vertex,nb_edges,nb_graphs)
     print("[INFO] Question 9 terminée\n")
 
@@ -161,7 +163,6 @@ def main():
     question_10()
     #question 11
     question_11()
-
 
 if __name__ == "__main__":
     main()

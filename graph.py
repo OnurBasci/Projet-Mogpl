@@ -83,9 +83,9 @@ class Graph:
         added_edges : dict = {}
         # Fonction qui ajoute un arc au graph si il n'existe pas déjà
         def add_edge_from_path(path):
-            if path.size <= 1:
+            if len(path) <= 1:
                 return
-            for i in range(0,path.size-1):
+            for i in range(0,len(path) - 1):
                 vertex_1,vertex_2 = path[i],path[i+1]
                 if added_edges.get((vertex_1,vertex_2),None) is not None:
                     continue
@@ -123,18 +123,25 @@ class Graph:
         :return: Creation d'un nouveau graphe avec des poids aléatoirement générés
         """
 
-        random_graph = deepcopy(graph)
-        not_accepted = False
-        while not_accepted : 
-            list_edges = []
-            for vertex in graph.list_vertex:
-                for neighbor,_ in graph.graph[vertex]:
-                    random_weight = random.randint(-10, 10)
-                    list_edges.append((vertex, neighbor, random_weight))
-            
-            random_graph.add_edges(list_edges)
-            _,_,_,not_accepted = random_graph.bellman_ford(0,None)
-
+        random_graph = Graph(graph.list_vertex)
+        accepted = False
+        list_edges = []
+        for vertex in graph.list_vertex:
+            for neighbor, _ in graph.graph[vertex]:
+                random_weight = random.randint(-10, 10)
+                list_edges.append((vertex, neighbor, random_weight))
+        random_graph.add_edges(list_edges)
+        while not accepted :
+            negative_cycle,_,_,accepted = random_graph.bellman_ford(0,None)
+            if not accepted :
+                print(negative_cycle)
+                Graph.show_graph(random_graph)
+                for i in range(len(negative_cycle)-1):
+                    for u,v,w in list_edges:
+                        if u == negative_cycle[i] and v == negative_cycle[i+1]:
+                            list_edges.remove((u,v,w))
+                            list_edges.append((u,v,abs(w)))
+                random_graph.add_edges(list_edges)
         return random_graph
 
     
@@ -254,6 +261,7 @@ class Graph:
             :return: None
         """
         self.list_edges = liste_edges
+        self.graph = {x: [] for x in self.list_vertex}
         for u,v,w in liste_edges:
             self.graph[u].append((v, w))
 
@@ -274,8 +282,8 @@ class Graph:
                     liste_precedent.append((vertex,w))
         return liste_precedent
 
-    
     def bellman_ford(self, source_vertex, vertex_order=None):
+        self.nb_iter = 0
         """
             Fonction qui calcule le plus court chemin entre deux sommets avec l'algorithme de Bellman-Ford
             :param source_vertex: sommet de départ
@@ -287,7 +295,65 @@ class Graph:
 
         # Initialiser la distance du sommet source à 0
         self.distances[source_vertex] = 0
-        self.paths =  [[source_vertex] for _ in range(len(self.list_vertex))] 
+        self.paths = [[source_vertex] for _ in range(len(self.list_vertex))]
+        predecessor = [-1] * len(self.list_vertex)
+
+        # Relaxer les arcs répétitivement
+        for _ in range(len(self.list_vertex) - 1):
+            no_updates = True
+            for vertex in vertex_order:
+                for neighbor, weight in self.graph[vertex]:
+                    if (
+                            self.distances[vertex] != np.inf
+                            and self.distances[vertex] + weight < self.distances[neighbor]
+                    ):
+                        self.distances[neighbor] = self.distances[vertex] + weight
+                        self.paths[neighbor] = self.paths[vertex] + [neighbor]
+                        predecessor[neighbor] = vertex
+                        no_updates = False
+
+            self.nb_iter += 1
+            if no_updates:
+                break
+
+        # Check for negative cycles
+        for u, v, w in self.list_edges:
+            if self.distances[u] != np.inf and self.distances[u] + w < self.distances[v]:
+                # Negative cycle detected
+                visited = [False] * len(self.list_vertex)
+                visited[v] = True
+
+                while not visited[u]:
+                    visited[u] = True
+                    u = predecessor[u]
+
+                # u is a vertex in a negative cycle, find the cycle itself
+                negative_cycle = [u]
+                v = predecessor[u]
+
+                while v != u:
+                    negative_cycle = [v] + negative_cycle
+                    v = predecessor[v]
+
+                return negative_cycle, [], [], False
+
+        return self.paths, self.distances, self.nb_iter, True
+
+    def bellman_fordv2(self, source_vertex, vertex_order=None):
+        self.nb_iter = 0
+        """
+            Fonction qui calcule le plus court chemin entre deux sommets avec l'algorithme de Bellman-Ford
+            :param source_vertex: sommet de départ
+            :param vertex_order: ordre des sommets à parcourir
+            :return: liste des plus court chemins, matrice des distances, nombre d'itérations
+        """
+        if vertex_order is None:
+            vertex_order = self.list_vertex
+
+        # Initialiser la distance du sommet source à 0
+        self.distances[source_vertex] = 0
+        self.paths =  [[source_vertex] for _ in range(len(self.list_vertex))]
+        predecessor = [-1] * len(self.list_vertex)
 
         # Relaxer les arcs répétitivement
         for _ in range(len(self.list_vertex) - 1):
@@ -296,7 +362,8 @@ class Graph:
                 for neighbor, weight in self.graph[vertex]:
                     if self.distances[vertex] != np.inf and self.distances[vertex] + weight < self.distances[neighbor]:
                         self.distances[neighbor] = self.distances[vertex] + weight
-                        self.paths[neighbor] = self.paths[vertex] + [neighbor] 
+                        self.paths[neighbor] = self.paths[vertex] + [neighbor]
+                        predecessor[neighbor] = vertex
                         no_updates = False 
 
             self.nb_iter += 1
@@ -304,13 +371,34 @@ class Graph:
                 break
             
         # Vérifier les cycles de poids négatifs
-        for vertex, neighbor, weight in self.list_edges:
+        """for vertex, neighbor, weight in self.list_edges:
             if self.distances[vertex] != np.inf and self.distances[vertex] + weight < self.distances[neighbor]:
-                print("Le graphe contient un cycle de poids négatif")
-                return [], [], 0, False
+                return [], [], 0, False"""
 
-        return self.distances, self.paths, self.nb_iter, True
-    
+        for u, v, w in self.list_edges:
+            if self.distances[u] != np.inf and self.distances[u] + w < self.distances[v]:
+                # Negative cycle detected
+                visited = [False] * len(self.list_vertex)
+                visited[v] = True
+
+                while not visited[u]:
+                    visited[u] = True
+                    u = predecessor[u]
+
+                # u is a vertex in a negative cycle, find the cycle itself
+                negative_cycle = [u]
+                v = predecessor[u]
+
+                while v != u:
+                    negative_cycle = [v] + negative_cycle
+                    v = predecessor[v]
+
+                return negative_cycle,[],[],False
+
+
+
+        return self.paths, self.distances, self.nb_iter, True
+
     def show_bellmanford_result(self):
         """
             Fonction qui affiche les résultats de l'algorithme de Bellman-Ford
