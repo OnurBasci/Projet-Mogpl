@@ -100,7 +100,7 @@ def question_9():
     nb_graphs = 7
     nb_vertex = 100
     nb_edges = nb_vertex*4
-    Graph.compare_graph(nb_vertex,nb_edges,nb_graphs)
+    Graph.generate_compare_graph(nb_vertex,nb_edges,nb_graphs)
 
 def question_10():
     """
@@ -108,7 +108,7 @@ def question_10():
     nombre d’it´erations ?
     """
     print("Question 10")
-    anlayse_nb_iter_by_nb_trainGraph(7, 100, 400, 20, 10)
+    anlayse_nb_iter_by_nb_trainGraph(nb_vertex=100, nb_edges=400, nb_repetitions=20, max_nb_trainGraph=10)
 
 def question_11():
     """
@@ -119,8 +119,7 @@ def question_11():
     réponse
     """
     level_graphe = Graph.generate_level_graph(2500)
-    print("here")
-    calclulate_mean_nb_iter(graphe=level_graphe, nb_repetition=20)
+    calclulate_mean_nb_iter(graphe=level_graphe, nb_repetition=1)
 
 
 
@@ -129,7 +128,7 @@ def main():
     """
         Fonction principale qui regroupe tous les appels aux fonctions des questions
     """
-    """# Graph de base
+    # Graph de base
     my_graph = get_base_graph()
     # Question 1
     question_1(my_graph)
@@ -150,7 +149,7 @@ def main():
     # Question 9
     question_9()
     # Question 10
-    question_10()"""
+    question_10()
     #question 11
     question_11()
 

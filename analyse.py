@@ -11,7 +11,7 @@ def calclulate_mean_nb_iter(nb_graphs=7, nb_vertex=100, nb_edges=400, nb_repetit
     for i in range(nb_repetition):
         print(f"iteration : {i}")
         if graphe is None:
-            nb_iter_glouton, nb_iter_random = Graph.compare_graph(nb_vertex, nb_edges, nb_graphs)
+            nb_iter_glouton, nb_iter_random = Graph.generate_compare_graph(nb_vertex, nb_edges, nb_graphs)
         else:
             nb_iter_glouton, nb_iter_random = Graph.compare_graph(graphe, nb_graphs)
         if nb_iter_random is None or nb_iter_glouton is None:
@@ -31,7 +31,7 @@ def calclulate_mean_nb_iter(nb_graphs=7, nb_vertex=100, nb_edges=400, nb_repetit
 
 
 
-def anlayse_nb_iter_by_nb_trainGraph(nb_graphs, nb_vertex, nb_edges, nb_repetitions, max_nb_trainGraph):
+def anlayse_nb_iter_by_nb_trainGraph(nb_vertex, nb_edges, nb_repetitions, max_nb_trainGraph):
     moyens_glouton = []
     moyens_random = []
 

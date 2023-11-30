@@ -105,7 +105,7 @@ class Graph:
         return new_graph
     
     @staticmethod
-    def generate_graphs_with_random_weights(base_graph : 'Graph', nb_graph:int, delete_cycle = True)->list['Graph']:
+    def generate_graphs_with_random_weights(base_graph : 'Graph', nb_graph:int, delete_cycle : bool= True)->list['Graph']:
         """
         Fonction qui génère des graphes avec des poids aléatoires
         :param base_graph: Un graphe orienté sans poids
@@ -176,14 +176,13 @@ class Graph:
                 for k in next_level_vertexes:
                     edges.append(((i*4)+j, k, 1))
         level_graph.add_edges(edges)
-
         level_graph = Graph.generate_random_weights(level_graph, delete_cycle=False)
 
         return level_graph
 
     
     @staticmethod
-    def compare_graph(size_graph:int,nb_edges:int,nb_graph_to_generate:int, delete_cyle = True):
+    def generate_compare_graph(size_graph:int,nb_edges:int,nb_graph_to_generate:int, delete_cycle = True):
         """
             Fonction qui compare les résultats de l'ordre glouton_fas avec un ordre aléatoire
             :param size_graph: taille du graph
@@ -192,9 +191,9 @@ class Graph:
         """
         source = 0
         # Génération d'un graph aléatoire
-        graph = Graph.generate_random_graph(size_graph=size_graph,nb_edges=nb_edges, delete_cyle=False)
+        graph = Graph.generate_random_graph(size_graph=size_graph,nb_edges=nb_edges)
         # Génération de graphes avec des poids aléatoires
-        train_test_graphs = Graph.generate_graphs_with_random_weights(graph,nb_graph_to_generate, delete_cyle=False)
+        train_test_graphs = Graph.generate_graphs_with_random_weights(graph,nb_graph_to_generate, delete_cycle=delete_cycle)
         # Récupération des graphes d'entrainement et de test
         train_graphs = train_test_graphs[:nb_graph_to_generate-1]
         test_graph = train_test_graphs[nb_graph_to_generate-1]
@@ -226,7 +225,7 @@ class Graph:
     def compare_graph(graph, nb_graph_to_generate):
         source = 0
         # Génération de graphes avec des poids aléatoires
-        train_test_graphs = Graph.generate_graphs_with_random_weights(graph, nb_graph_to_generate)
+        train_test_graphs = Graph.generate_graphs_with_random_weights(graph, nb_graph_to_generate,delete_cycle=False)
         train_graphs = train_test_graphs[:nb_graph_to_generate - 1]
         test_graph = train_test_graphs[nb_graph_to_generate - 1]
         # Calcul de l'arborecence
@@ -313,14 +312,8 @@ class Graph:
             self.predecessors[i] = self.predecessors[i-1]
             # Pour chaque sommet dans l'ordre donné
             for vertex in vertex_order:
-                # Si le sommet n'est pas encore accessible, on passe
-                # if self.distances[i-1,vertex] == np.inf:
-                #     continue
-                # Sinon, on met à jour les distances pour chaque voisins 
                 for neighbor, weight in self.graph[vertex]:
                     new_distance = self.distances[i-1,vertex] + weight
-                    # new_distance = self.distances[i,vertex] + weight
-                    
                     if new_distance < self.distances[i-1,neighbor]:
                         # On met à jour la distance du voisin
                         self.distances[i,neighbor] = new_distance
