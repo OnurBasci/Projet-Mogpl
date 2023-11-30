@@ -17,8 +17,7 @@ class Graph:
         :method: 
             - add_edges(liste_edges : list) -> None
             - get_precedent(target_vertex : int) -> list
-            - search_bellman_ford(source_vertex : int , vertex_order : list = None) -> (list,np.ndarray,int)
-            - reconstruct_path(source_vertex : int ) -> list
+            - bellman_ford(source_vertex : int , vertex_order : list = None) -> (list,np.ndarray,int)
             - show_bellmanford_result() -> None
             - get_sources() -> list
             - get_puits() -> list
@@ -31,17 +30,17 @@ class Graph:
         # liste des sommets
         self.list_vertex : list = list_vertex
         # liste des arcs
-        self.list_edges : list = None
-        # un ordre des sommets 
+        self.list_edges : list = []
+        # un ordre des sommets
         self.vertex_order : list = None
         # représentation du graph sous forme de listes d'adjacence
-        self.graph : dict = {x : [] for x in self.list_vertex}
+        self.graph : dict = {x: [] for x in self.list_vertex}
         # distances pour l'algorithm de Bellman-Ford
-        self.distances : np.ndarray = None
+        self.distances : np.ndarray = np.full(len(self.list_vertex), np.inf)
         # prédecesseurs pour l'algorithm de Bellman-Ford
-        self.paths : list = None
+        self.paths : list = [[] for _ in range(len(self.list_vertex))]  # Initialize paths as empty lists
         # nombre d'itérations pour l'algorithm de Bellman-Ford
-        self.nb_iter :int = 0
+        self.nb_iter : int = 0
 
     """
     ┌──────────────────────────────────────────────────────────────────────────┐
@@ -69,7 +68,6 @@ class Graph:
         edge_labels = {(u, v): f'{weight}' for u, v, weight in graph.list_edges}
         nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='red')
         plt.show()
-
 
 
     @staticmethod
@@ -105,7 +103,7 @@ class Graph:
         return new_graph
     
     @staticmethod
-    def generate_graphs_with_random_weights(base_graph : 'Graph', nb_graph:int, delete_cycle : bool= True)->list['Graph']:
+    def generate_graphs_with_random_weights(base_graph : 'Graph', nb_graph:int, delete_cycle : bool= True):
         """
         Fonction qui génère des graphes avec des poids aléatoires
         :param base_graph: Un graphe orienté sans poids
@@ -197,7 +195,7 @@ class Graph:
         train_graphs = train_test_graphs[:nb_graph_to_generate-1]
         test_graph = train_test_graphs[nb_graph_to_generate-1]
         # Calcul de l'arborecence 
-        paths = [graph.search_bellman_ford(source,None)[0] for graph in train_graphs]
+        paths = [graph.bellman_ford(source,None)[0] for graph in train_graphs]
         # Unifier les arborecences
         union_graph = Graph.unifiy_paths(paths,graph.list_vertex)
         # Calcul de l'ordre avec glouton_fas
@@ -209,8 +207,8 @@ class Graph:
         test_graph.delete_cycles(random_order)
         # Calcul de l'arborecence avec l'ordre glouton_fas
         #Graph.show_graph(test_graph)
-        _,_,nb_iter_glouton,_ = test_graph.search_bellman_ford(source,order)
-        _,_,nb_iter_random,_ = test_graph.search_bellman_ford(source,random_order)
+        _,_,nb_iter_glouton,_ = test_graph.bellman_ford(source,order)
+        _,_,nb_iter_random,_ = test_graph.bellman_ford(source,random_order)
 
         """
         print(f"Ordre glouton_fas: {order}")
@@ -228,7 +226,7 @@ class Graph:
         train_graphs = train_test_graphs[:nb_graph_to_generate - 1]
         test_graph = train_test_graphs[nb_graph_to_generate - 1]
         # Calcul de l'arborecence
-        paths = [graph.search_bellman_ford(source, None)[0] for graph in train_graphs]
+        paths = [graph.bellman_ford(source, None)[0] for graph in train_graphs]
         # Unifier les arborecences
         union_graph = Graph.unifiy_paths(paths, graph.list_vertex)
         # Calcul de l'ordre avec glouton_fas
@@ -240,8 +238,8 @@ class Graph:
         test_graph.delete_cycles(random_order)
         # Calcul de l'arborecence avec l'ordre glouton_fas
         # Graph.show_graph(test_graph)
-        _, _, nb_iter_glouton, _ = test_graph.search_bellman_ford(source, order)
-        _, _, nb_iter_random, _ = test_graph.search_bellman_ford(source, random_order)
+        _, _, nb_iter_glouton, _ = test_graph.bellman_ford(source, order)
+        _, _, nb_iter_random, _ = test_graph.bellman_ford(source, random_order)
 
         """
         print(f"Ordre glouton_fas: {order}")
@@ -283,103 +281,41 @@ class Graph:
                     liste_precedent.append((vertex,w))
         return liste_precedent
 
-    def search_bellman_ford(self, source_vertex : int , vertex_order : list = None) -> (list,np.ndarray,int):
+    
+    def bellman_ford(self, source_vertex, vertex_order=None):
         """
             Fonction qui calcule le plus court chemin entre deux sommets avec l'algorithme de Bellman-Ford
             :param source_vertex: sommet de départ
             :param vertex_order: ordre des sommets à parcourir
             :return: liste des plus court chemins, matrice des distances, nombre d'itérations
         """
-
-        # si vertex_order n'est pas spécifié, on prend l'ordre de la liste des sommets
         if vertex_order is None:
             vertex_order = self.list_vertex
 
-        self.vertex_order = vertex_order
-        # initialisation des variables
-        self.nb_iter = 0
-        nb_vertices = len(vertex_order)
-        # initialisation des distances et des prédecesseurs
-        self.distances = np.zeros((nb_vertices+1,nb_vertices))
-        self.distances.fill(np.inf)
-        self.distances[:,source_vertex] = 0
-        self.predecessors = np.zeros(self.distances.shape)-1
+        # Initialiser la distance du sommet source à 0
+        self.distances[source_vertex] = 0
 
-        # Max itération de l'algorithme de Bellman-Ford
-        for i in range(1, len(vertex_order)+1):
-            # self.distances[i] = self.distances[i-1].copy()
-            # self.predecessors[i] = self.predecessors[i-1].copy()            
-            # Pour chaque sommet dans l'ordre donné
-            for vertex in vertex_order:
+        # Relaxer les arcs répétitivement
+        for _ in range(len(self.list_vertex) - 1):
+            for vertex in vertex_order :
                 for neighbor, weight in self.graph[vertex]:
-                    new_distance = self.distances[i,vertex] + weight
-                    if new_distance < self.distances[i-1,neighbor]:
-                        # On met à jour la distance du voisin
-                        self.distances[i,neighbor] = new_distance
-                        # On met à jour le prédecesseur du voisin
-                        self.predecessors[i, neighbor] = vertex
-
+                    if self.distances[vertex] != np.inf and self.distances[vertex] + weight < self.distances[neighbor]:
+                        self.distances[neighbor] = self.distances[vertex] + weight
+                        self.paths[neighbor] = self.paths[vertex] + [neighbor] 
+                        no_updates = False 
 
             self.nb_iter += 1
-            # # Si les distances n'ont pas changé, on arrête l'algorithme
-            if np.array_equal(self.distances[i,:],self.distances[i-1,:]):
+            if no_updates:
                 break
-            if i == len(vertex_order):
-                print(self.distances)
-                return None, None, None, False
             
-  
-        self.paths = self._reconstruct_path(source_vertex, vertex_order)
-        return self.paths,self.distances,self.nb_iter,True
+        # Vérifier les cycles de poids négatifs
+        for vertex, neighbor, weight in self.list_edges:
+            if self.distances[vertex] != np.inf and self.distances[vertex] + weight < self.distances[neighbor]:
+                print("Le graphe contient un cycle de poids négatif")
+                return [], [], 0, False
 
-
+        return self.distances, self.paths, self.nb_iter, True
     
-    def _find_negative_cycle(self, path : list) -> int:
-        """
-            Fonction qui trouve un cycle à poids négatif
-            :param path: chemin
-            :return: nombre d'itérations
-        """
-        already_seen = {}
-        index_cycle = -1
-        for i,value in enumerate(path):
-            if value in already_seen:
-                index_cycle = i
-                break
-            already_seen[value] = i
-
-        i_start_cycle = already_seen[path[index_cycle]]
-        cycle = path[i_start_cycle:index_cycle]    
-        return cycle
-
-    def _reconstruct_path(self, source_vertex : int, vertex_order=None) -> list:
-        """
-            Fonction qui reconstruit les chemins à partir des prédecesseurs
-            :param source_vertex: sommet de départ
-            :return: liste des chemins
-        """
-        paths : list = []
-        # Pour chaque sommet
-        for vertex in vertex_order:
-            # Si le sommet n'est pas accessible, on passe
-            if self.distances[self.nb_iter,vertex] == np.inf:
-                continue
-            # Sinon, on reconstruit le chemin
-            path : list = []
-            current_vertex = vertex
-            # Tant qu'on est pas arrivé au sommet de départ
-            while current_vertex != source_vertex:
-                print(path)
-                # On ajoute le sommet au chemin
-                path.append(current_vertex)
-                # On récupère le prédecesseur du sommet
-                current_vertex = int(self.predecessors[self.nb_iter,current_vertex])
-      
-            path.append(source_vertex)
-            paths.append(path[::-1])
-        return paths
-
-
     def show_bellmanford_result(self):
         """
             Fonction qui affiche les résultats de l'algorithme de Bellman-Ford
@@ -475,7 +411,7 @@ class Graph:
         accepted = False
         while not accepted:
             # Graph.show_graph(self)
-            _, _, _, state = self.search_bellman_ford(0, vertex_order)
+            _, _, _, state = self.bellman_ford(0, vertex_order)
             Graph.show_graph(self)
             if state:
                 accepted = True

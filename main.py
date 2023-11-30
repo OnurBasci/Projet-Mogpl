@@ -17,7 +17,7 @@ def question_1(graph : Graph) -> None:
         l'arborescence des plus courts chemins ainsi que le nombre d'it ́erations qui ont  ́et ́e n ́ecessaires avant
         que l'algorithme converge
     """
-    graph.search_bellman_ford(0,None)
+    graph.bellman_ford(0,None)
     graph.show_bellmanford_result()
     print("[INFO] Question 1 terminée\n")
 
@@ -37,6 +37,7 @@ def question_3(graph : Graph) -> (Graph,Graph,Graph):
         A partir de G construire 3 graphes ponder ́es G1,G2,G3 ainsi que le graphe test H.
     """
     g1, g2, g3, H = Graph.generate_graphs_with_random_weights(graph,4)
+    
     #Graph.show_graph(g1)
     #Graph.show_graph(g2)
     #Graph.show_graph(g3)
@@ -51,10 +52,9 @@ def question_4(graph_1: Graph, graph_2: Graph, graph_3: Graph):
         l'algorithme Bellman-Ford dans chacun de ces graphes et d ́eterminer l'union de leurs arborescences
         des plus courts chemins que l'on appelera T.
     """
-    Graph.show_graph(graph_1)
-    path_1,_,_,_ = graph_1.search_bellman_ford(0,None)
-    path_2,_,_,_ = graph_2.search_bellman_ford(0,None)
-    path_3,_,_,_ = graph_3.search_bellman_ford(0,None)
+    path_1,_,_,_ = graph_1.bellman_ford(0,None)
+    path_2,_,_,_ = graph_2.bellman_ford(0,None)
+    path_3,_,_,_ = graph_3.bellman_ford(0,None)
     union_T : Graph = Graph.unifiy_paths([path_1,path_2,path_3], graph_1.list_vertex)
     print("[INFO] Question 4 terminée\n")
     return union_T  
@@ -74,7 +74,7 @@ def question_6(H, ordre):
     utilisant l'ordre <tot.
     """
     print("Question 6: Application de Bellman Ford à H")
-    return H.search_bellman_ford(0,ordre)
+    return H.bellman_ford(0,ordre)
 
 def question_7(graph):
     """
@@ -82,7 +82,7 @@ def question_7(graph):
     aléatoirement (de manière uniforme).
     """
     ordre = Graph.generate_random_order(graph)
-    path,dist,nb_iter,state = graph.search_bellman_ford(0, ordre)
+    path,dist,nb_iter,state = graph.bellman_ford(0, ordre)
     print("[INFO] Question 7 terminée\n")
     return path,dist,nb_iter,state
 
