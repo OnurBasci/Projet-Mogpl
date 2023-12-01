@@ -9,7 +9,6 @@ def calclulate_mean_nb_iter(nb_graphs=7, nb_vertex=100, nb_edges=400, nb_repetit
     randoms = []
     counter = 0
     for i in range(nb_repetition):
-        print(f"iteration : {i}")
         if graphe is None:
             nb_iter_glouton, nb_iter_random = Graph.generate_compare_graph(nb_vertex, nb_edges, nb_graphs)
         else:
@@ -36,6 +35,7 @@ def anlayse_nb_iter_by_nb_trainGraph(nb_vertex, nb_edges, nb_repetitions, max_nb
     moyens_random = []
 
     for i in range(1, max_nb_trainGraph):
+        print(f"iteration {i}")
         moyen_glouton, moyen_random, _, _ = calclulate_mean_nb_iter(i, nb_vertex, nb_edges, nb_repetitions)
         moyens_glouton.append(moyen_glouton)
         moyens_random.append(moyen_random)
@@ -54,7 +54,7 @@ def anlayse_nb_iter_by_nb_trainGraph(nb_vertex, nb_edges, nb_repetitions, max_nb
 
     # Set title and labels
     ax.set_title("Moyens nombre d'itérations en fonction de Graphe d'entraînement")
-    ax.set_xlabel("Npmbre de graphe d'entraînement")
+    ax.set_xlabel("Nombre de graphe d'entraînement")
     ax.set_ylabel("Moyen de nombre d'itérations")
 
     # Display a legend
@@ -62,3 +62,71 @@ def anlayse_nb_iter_by_nb_trainGraph(nb_vertex, nb_edges, nb_repetitions, max_nb
 
     # Show the plot
     plt.show()
+
+
+def anlayse_nb_iter_by_nb_sommets(nb_train_graph, nb_edges, nb_repetitions, max_nb_sommets, nb_pas = 10):
+    moyens_glouton = []
+    moyens_random = []
+
+    for i in range(10, max_nb_sommets, nb_pas):
+        print(f"iteration {i}")
+        moyen_glouton, moyen_random, _, _ = calclulate_mean_nb_iter(nb_train_graph, i, nb_edges, nb_repetitions)
+        moyens_glouton.append(moyen_glouton)
+        moyens_random.append(moyen_random)
+
+    nb_train_graph = [i for i in range(10, max_nb_sommets, nb_pas)]
+
+    print(moyens_random)
+    print(moyens_glouton)
+    print(nb_train_graph)
+
+    fig, ax = plt.subplots()
+
+    # Plot both functions on the same subplot
+    ax.plot(nb_train_graph, moyens_glouton, label="Moyen Glouton", color='blue')
+    ax.plot(nb_train_graph, moyens_random, label="Moyen random", color='red')
+
+    # Set title and labels
+    ax.set_title("Moyens nombre d'itérations en fonction de nombre de sommets")
+    ax.set_xlabel("Nombre de sommets")
+    ax.set_ylabel("Moyen de nombre d'itérations")
+
+    # Display a legend
+    ax.legend()
+
+    # Show the plot
+    plt.show()
+
+def anlayse_nb_iter_by_nb_edges(nb_train_graph, nb_sommet, nb_repetitions, max_nb_edges, nb_pas = 5):
+    moyens_glouton = []
+    moyens_random = []
+
+    for i in range(20, max_nb_edges, nb_pas):
+        print(f"iteration {i}")
+        moyen_glouton, moyen_random, _, _ = calclulate_mean_nb_iter(nb_graphs=nb_train_graph, nb_vertex=nb_sommet, nb_edges=i, nb_repetition=nb_repetitions)
+        moyens_glouton.append(moyen_glouton)
+        moyens_random.append(moyen_random)
+
+    nb_train_graph = [i for i in range(20, max_nb_edges, nb_pas)]
+
+    print(moyens_random)
+    print(moyens_glouton)
+    print(nb_train_graph)
+
+    fig, ax = plt.subplots()
+
+    # Plot both functions on the same subplot
+    ax.plot(nb_train_graph, moyens_glouton, label="Moyen Glouton", color='blue')
+    ax.plot(nb_train_graph, moyens_random, label="Moyen random", color='red')
+
+    # Set title and labels
+    ax.set_title("Moyens nombre d'itérations en fonction de nombre d'arêtes")
+    ax.set_xlabel("Nombre d'arêtes")
+    ax.set_ylabel("Moyen de nombre d'itérations")
+
+    # Display a legend
+    ax.legend()
+
+    # Show the plot
+    plt.show()
+

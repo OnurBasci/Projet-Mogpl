@@ -1,5 +1,5 @@
 from graph import Graph
-from analyse import anlayse_nb_iter_by_nb_trainGraph, calclulate_mean_nb_iter
+import analyse
 
 def get_base_graph() -> Graph :
     """ 
@@ -26,7 +26,7 @@ def question_2(graph : Graph) -> list:
         Coder l'algorithme GloutonFas qui prend comme entr ́ee un graphe et renverra un
         arrangement lin ́eaire de ses sommets.
     """
-    ordre = graph.glouton_fas()
+    ordre = graph.glouton_fas_v2()
     print("=========================\n")	
     print("[INFO] Question 2 terminée\n")
     print(f"[INFO] Ordre obtenu : {ordre}")
@@ -113,8 +113,12 @@ def question_10():
     nombre d’it´erations ?
     """
     print("Question 10")
-    anlayse_nb_iter_by_nb_trainGraph(nb_vertex=100, nb_edges=400, nb_repetitions=20, max_nb_trainGraph=10)
+    analyse.anlayse_nb_iter_by_nb_trainGraph(nb_vertex=50, nb_edges=200, nb_repetitions=10, max_nb_trainGraph=10)
     print("[INFO] Question 10 terminée\n")
+
+def tests_supplementaires():
+    #analyse.anlayse_nb_iter_by_nb_sommets(max_nb_sommets=200, nb_train_graph=8, nb_edges=200, nb_repetitions=10)
+    analyse.anlayse_nb_iter_by_nb_edges(max_nb_edges=300, nb_train_graph=8, nb_sommet=200, nb_repetitions=10)
 
 def question_11():
     """
@@ -125,7 +129,7 @@ def question_11():
     réponse
     """
     level_graphe = Graph.generate_level_graph(2500)
-    calclulate_mean_nb_iter(graphe=level_graphe, nb_repetition=1)
+    analyse.calclulate_mean_nb_iter(graphe=level_graphe, nb_repetition=1)
     print("[INFO] Question 11 terminée\n")
 
 
@@ -136,7 +140,7 @@ def main():
         Fonction principale qui regroupe tous les appels aux fonctions des questions
     """
     # Graph de base
-    my_graph = get_base_graph()
+    """my_graph = get_base_graph()
     # Question 1
     #question_1(my_graph)
     # Question 2
@@ -158,7 +162,9 @@ def main():
     # Question 10
     question_10()
     #question 11
-    question_11()
+    question_11()"""
+
+    tests_supplementaires()
 
 if __name__ == "__main__":
     main()

@@ -214,7 +214,7 @@ class Graph:
         # Unifier les arborecences
         union_graph = Graph.unifiy_paths(paths,graph.list_vertex)
         # Calcul de l'ordre avec glouton_fas
-        order = union_graph.glouton_fas()
+        order = union_graph.glouton_fas_v2()
         # Génération d'un ordre aléatoire
         random_order = Graph.generate_random_order(graph)
         # Calcul de l'arborecence avec l'ordre glouton_fas
@@ -233,23 +233,31 @@ class Graph:
     def compare_graph(graph, nb_graph_to_generate):
         source = 0
         # Génération de graphes avec des poids aléatoires
+        print(0)
         train_test_graphs = Graph.generate_graphs_with_random_weights(graph, nb_graph_to_generate)
         train_graphs = train_test_graphs[:nb_graph_to_generate - 1]
         test_graph = train_test_graphs[nb_graph_to_generate - 1]
         # Calcul de l'arborecence
+        print(1)
         paths = [graph.bellman_ford(source, None)[0] for graph in train_graphs]
+        print(2)
         # Unifier les arborecences
         union_graph = Graph.unifiy_paths(paths, graph.list_vertex)
         # Calcul de l'ordre avec glouton_fas
-        order = union_graph.glouton_fas()
+        print(3)
+        order = union_graph.glouton_fas_v2()
         # Génération d'un ordre aléatoire
+        print(4)
         random_order = Graph.generate_random_order(graph)
+        print(5)
         # Calcul de l'arborecence avec l'ordre glouton_fas
         _, _, nb_iter_glouton, _ = test_graph.bellman_ford(source, order)
+        print(6)
         _, _, nb_iter_random, _ = test_graph.bellman_ford(source, random_order)
+        print(7)
 
-        """
-        print(f"Ordre glouton_fas: {order}")
+
+        """print(f"Ordre glouton_fas: {order}")
         print(f"Nombre d'itérations avec glouton_fas: {nb_iter_glouton}")
         print(f"Ordre aléatoire: {random_order}")
         print(f"Nombre d'itérations avec un ordre aléatoire: {nb_iter_random}")"""
@@ -327,6 +335,7 @@ class Graph:
 
         # Relaxer les arcs répétitivement
         for i in range(len(self.list_vertex)):
+            #print(f"vertex: {i}")
             no_updates = True
             for vertex in vertex_order:
                 for neighbor, weight in self.graph[vertex]:
@@ -430,6 +439,7 @@ class Graph:
 
         return sources
 
+
     def get_puits(self):
         """
             <Ajourter la description>
@@ -478,12 +488,16 @@ class Graph:
         s2 : list = []
         graphe = deepcopy(self)
         while len(graphe.graph.keys()) > 0:
-            while len(graphe.get_sources()) > 0:
-                u = graphe.get_sources()[0]
+            sources = graphe.get_sources()
+            while len(sources) > 0:
+                u = sources[0]
                 s1.append(u)
                 graphe.delete_vertex(u)
-            while len(graphe.get_puits()) > 0:
-                u = graphe.get_puits()[0]
+                sources = graphe.get_sources()
+            puits = graphe.get_puits()
+            while len(puits) > 0:
+                puits = graphe.get_puits()
+                u = puits[0]
                 s2.insert(0, u)
                 graphe.delete_vertex(u)
             u_max = np.argmax(np.array([graphe.get_diff_enter_exit(vertex) for vertex in self.graph.keys()]))
@@ -494,7 +508,41 @@ class Graph:
         s1.extend(s2)
         return s1
 
+    def glouton_fas_v2(self):
+        s1: list = []
+        s2: list = []
+        graphe = deepcopy(self)
+        inverse_graphe = graphe.get_inverse_graph()
+        while len(graphe.graph.keys()) > 0:
+            sources = inverse_graphe.get_puits()
+            while len(sources) > 0:
+                u = sources[0]
+                s1.append(u)
+                graphe.delete_vertex(u)
+                inverse_graphe.delete_vertex(u)
+                sources = inverse_graphe.get_puits()
+            puits = graphe.get_puits()
+            while len(puits) > 0:
+                u = puits[0]
+                s2.insert(0, u)
+                graphe.delete_vertex(u)
+                puits = graphe.get_puits()
+            u_max = np.argmax(np.array([graphe.get_diff_enter_exit(vertex) for vertex in self.graph.keys()]))
 
+            if len(graphe.graph.keys()) > 0:
+                s1.append(u_max)
+                graphe.delete_vertex(u_max)
+        s1.extend(s2)
+        return s1
+
+    def get_inverse_graph(self):
+        inverse_graph = Graph(self.list_vertex)
+
+        for vertex, neighbors in self.graph.items():
+            for neighbor, weight in neighbors:
+                inverse_graph.graph[neighbor].append((vertex, weight))
+
+        return inverse_graph
 
     def delete_cycles(self, vertex_order=None):
         """
