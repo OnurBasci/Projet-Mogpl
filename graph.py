@@ -103,7 +103,7 @@ class Graph:
         return new_graph
     
     @staticmethod
-    def generate_graphs_with_random_weights(base_graph : 'Graph', nb_graph:int):
+    def generate_graphs_with_random_weights(base_graph : 'Graph', nb_graph:int)-> list['Graph']:
         """
         Fonction qui génère des graphes avec des poids aléatoires
         :param base_graph: Un graphe orienté sans poids

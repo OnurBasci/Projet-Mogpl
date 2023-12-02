@@ -37,11 +37,6 @@ def question_3(graph : Graph) -> (Graph,Graph,Graph):
         A partir de G construire 3 graphes ponder ́es G1,G2,G3 ainsi que le graphe test H.
     """
     g1, g2, g3, H = Graph.generate_graphs_with_random_weights(graph,4)
-    
-    #Graph.show_graph(g1)
-    #Graph.show_graph(g2)
-    #Graph.show_graph(g3)
-    #Graph.show_graph(H)
     print("[INFO] Question 3 terminée\n")
 
     return g1, g2, g3, H
