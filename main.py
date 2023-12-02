@@ -1,5 +1,5 @@
 from graph import Graph
-from analyse import anlayse_nb_iter_by_nb_trainGraph, calclulate_mean_nb_iter
+import analyse
 
 def get_base_graph() -> Graph :
     """ 
@@ -26,7 +26,7 @@ def question_2(graph : Graph) -> list:
         Coder l'algorithme GloutonFas qui prend comme entr ́ee un graphe et renverra un
         arrangement lin ́eaire de ses sommets.
     """
-    ordre = graph.glouton_fas()
+    ordre = graph.glouton_fas_v2()
     print("=========================\n")	
     print("[INFO] Question 2 terminée\n")
     print(f"[INFO] Ordre obtenu : {ordre}")
@@ -37,6 +37,7 @@ def question_3(graph : Graph) -> (Graph,Graph,Graph):
         A partir de G construire 3 graphes ponder ́es G1,G2,G3 ainsi que le graphe test H.
     """
     g1, g2, g3, H = Graph.generate_graphs_with_random_weights(graph,4)
+
     print("[INFO] Question 3 terminée\n")
 
     return g1, g2, g3, H
@@ -50,6 +51,8 @@ def question_4(graph_1: Graph, graph_2: Graph, graph_3: Graph):
     path_1,_,_,_ = graph_1.bellman_ford(0,None)
     path_2,_,_,_ = graph_2.bellman_ford(0,None)
     path_3,_,_,_ = graph_3.bellman_ford(0,None)
+
+
     union_T : Graph = Graph.unifiy_paths([path_1,path_2,path_3], graph_1.list_vertex)
     print("[INFO] Question 4 terminée\n")
     return union_T  
@@ -98,9 +101,9 @@ def question_9():
         port `a l'application de l'algorithme de Bellman-Ford bas ́ee simplement sur un ordre tir e de manièere
         aléatoire
     """
-    nb_graphs = 7
+    nb_graphs = 10
     nb_vertex = 100
-    nb_edges = nb_vertex*4
+    nb_edges = nb_vertex*2
     Graph.generate_compare_graph(nb_vertex,nb_edges,nb_graphs)
     print("[INFO] Question 9 terminée\n")
 
@@ -110,8 +113,12 @@ def question_10():
     nombre d’it´erations ?
     """
     print("Question 10")
-    anlayse_nb_iter_by_nb_trainGraph(nb_vertex=100, nb_edges=400, nb_repetitions=20, max_nb_trainGraph=10)
+    analyse.anlayse_nb_iter_by_nb_trainGraph(nb_vertex=50, nb_edges=200, nb_repetitions=10, max_nb_trainGraph=10)
     print("[INFO] Question 10 terminée\n")
+
+def tests_supplementaires():
+    #analyse.anlayse_nb_iter_by_nb_sommets(max_nb_sommets=200, nb_train_graph=8, nb_edges=200, nb_repetitions=10)
+    analyse.anlayse_nb_iter_by_nb_edges(max_nb_edges=300, nb_train_graph=8, nb_sommet=200, nb_repetitions=10)
 
 def question_11():
     """
@@ -122,7 +129,7 @@ def question_11():
     réponse
     """
     level_graphe = Graph.generate_level_graph(2500)
-    calclulate_mean_nb_iter(graphe=level_graphe, nb_repetition=1)
+    analyse.calclulate_mean_nb_iter(graphe=level_graphe, nb_repetition=1)
     print("[INFO] Question 11 terminée\n")
 
 
@@ -133,9 +140,9 @@ def main():
         Fonction principale qui regroupe tous les appels aux fonctions des questions
     """
     # Graph de base
-    my_graph = get_base_graph()
+    """my_graph = get_base_graph()
     # Question 1
-    question_1(my_graph)
+    #question_1(my_graph)
     # Question 2
     question_2(my_graph)
     # Question 3
@@ -155,8 +162,9 @@ def main():
     # Question 10
     question_10()
     #question 11
-    question_11()
+    question_11()"""
 
+    tests_supplementaires()
 
 if __name__ == "__main__":
     main()
