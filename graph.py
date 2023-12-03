@@ -169,7 +169,9 @@ class Graph:
     @staticmethod
     def generate_random_graph(size_graph : int,nb_edges : int) -> 'Graph':
         """
-            Fonction qui génère un graph aléatoire d'une taile donnée
+            Fonction qui génère des poids aléatoires pour un graphe donnée
+            :param size_graph: Le nombre de sommet
+            :return: La fonction générée avec des poids aléatoire
         """
         liste_vertex : list = [i for i in range(size_graph)]
         liste_edges = [tuple(random.sample(liste_vertex,2)+[1]) for _ in range(nb_edges)]
@@ -181,7 +183,9 @@ class Graph:
     @staticmethod
     def generate_level_graph(nb_level):
         """
-        This function creates a graph by levels as explained in the guestion 11
+            Cette fonction crée un graph avec des niveau comme expliqué dans la question 11
+            :param nb_level: nombre de niveau
+            :level_graph: La fonction générée de la structure expliqué dans la question 11
         """
         level_graph = Graph([i for i in range(nb_level * 4)])
 
@@ -241,6 +245,13 @@ class Graph:
 
     @staticmethod
     def compare_graph(graph, nb_graph_to_generate):
+        """
+        Cette méthode compare les nombres d'itération nécessaire pour appliquer l'algorithme de Bellman Ford
+        suivant l'ordre obtenu avec glouton fas et un ordre aléatoire.
+        :param graph: Le graphe à analyser le nombre d'itération.
+        :param Nombre de graphe d'entrâinement pour obtenir l'ordre de glouton fas.
+        :return: nombre d'itération obtenus avec 2 méthodes
+        """
         source = 0
         # Génération de graphes avec des poids aléatoires
         print(0)
@@ -460,10 +471,9 @@ class Graph:
 
     def glouton_fas_v2(self):
         """
-            <Ajourter la description>
-            :return: <Ajourter la description>
+        La méthode glouton qui calcule un ordre total à partir de l'attribut graph de la classe
+        :return: Un ordre
         """
-
         s1: list = []
         s2: list = []
         graphe = deepcopy(self)
@@ -492,6 +502,9 @@ class Graph:
         return s1
 
     def get_inverse_graph(self):
+        """
+        :return: Un graohe avec les poids inversés
+        """
         inverse_graph = Graph(self.list_vertex)
         inverse_list_edges = [(v, u, w) for u, v, w in self.list_edges]
         inverse_graph.add_edges(inverse_list_edges)
