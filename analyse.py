@@ -45,7 +45,8 @@ def anlayse_nb_iter_by_nb_trainGraph(nb_vertex, nb_edges, nb_repetitions, max_nb
     print(moyens_random)
     print(moyens_glouton)
     print(nb_train_graph)
-
+    
+    plt.style.use("ggplot")
     fig, ax = plt.subplots()
 
     # Plot both functions on the same subplot
@@ -79,7 +80,8 @@ def anlayse_nb_iter_by_nb_sommets(nb_train_graph, nb_edges, nb_repetitions, max_
     print(moyens_random)
     print(moyens_glouton)
     print(nb_train_graph)
-
+    
+    plt.style.use("ggplot")
     fig, ax = plt.subplots()
 
     # Plot both functions on the same subplot
@@ -113,6 +115,7 @@ def anlayse_nb_iter_by_nb_edges(nb_train_graph, nb_sommet, nb_repetitions, max_n
     print(moyens_glouton)
     print(nb_train_graph)
 
+    plt.style.use("ggplot")
     fig, ax = plt.subplots()
 
     # Plot both functions on the same subplot
