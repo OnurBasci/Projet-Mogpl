@@ -62,7 +62,7 @@ def question_5(union_T):
      Appliquer l'algorithme GloutonFas avec comme entrée T et retourner un ordre <tot.
     """
     print("Question 5: Calcul de l'ordre pour le graphe d'union")
-    ordre = union_T.glouton_fas()
+    ordre = union_T.glouton_fas_v2()
     print(f"Question 5 \n {ordre=}")
     return ordre
 
@@ -140,9 +140,9 @@ def main():
         Fonction principale qui regroupe tous les appels aux fonctions des questions
     """
     # Graph de base
-    """my_graph = get_base_graph()
+    my_graph = get_base_graph()
     # Question 1
-    #question_1(my_graph)
+    question_1(my_graph)
     # Question 2
     question_2(my_graph)
     # Question 3
@@ -161,9 +161,9 @@ def main():
     question_9()
     # Question 10
     question_10()
-    #question 11
-    question_11()"""
-
+    # Question 11
+    question_11()
+    # Tests supplémentaires
     tests_supplementaires()
 
 if __name__ == "__main__":
