@@ -3,6 +3,16 @@ from graph import Graph
 
 #QUESTION 10
 def calclulate_mean_nb_iter(nb_graphs=7, nb_vertex=100, nb_edges=400, nb_repetition=20, graphe = None):
+    """
+    La fonction calculant les moyens de nombres d'itération obtenus à partir de l'algorithme Bellman-Ford avec l'ordre
+    glouton et l'ordre aléatoire.
+    :param nb_graphs: Nombre de graphe d'entrâinement
+    :param nb_vertex: Nombre de sommets
+    :param nb_edges: nombre des arêtes
+    :param nb_repetition: nombre de fois qu'on calcule la moyenne
+    :param graphe: Un graphe ou on fait la comparaison
+    :return:
+    """
     moyen_glouton = 0
     moyen_random = 0
     gloutons = []
@@ -31,6 +41,14 @@ def calclulate_mean_nb_iter(nb_graphs=7, nb_vertex=100, nb_edges=400, nb_repetit
 
 
 def anlayse_nb_iter_by_nb_trainGraph(nb_vertex, nb_edges, nb_repetitions, max_nb_trainGraph):
+    """
+    Faire une analyse de la peformence en fonction de nombre de graphe d'entraînement
+    :param nb_vertex: nombre de sommets
+    :param nb_edges: nombre d'arêtes
+    :param nb_repetitions: nombre de fois qu'on calcule la moyenne par itérations
+    :param max_nb_trainGraph: Maximum de nombre de graphe d'entrâinement
+    :return: None
+    """
     moyens_glouton = []
     moyens_random = []
 
@@ -65,6 +83,15 @@ def anlayse_nb_iter_by_nb_trainGraph(nb_vertex, nb_edges, nb_repetitions, max_nb
 
 
 def anlayse_nb_iter_by_nb_sommets(nb_train_graph, nb_edges, nb_repetitions, max_nb_sommets, nb_pas = 10):
+    """
+    Faire une analyse de la peformence en fonction de nombre de graphe d'entraînement
+    :param nb_train_graph: Nombre de graphe d'entraînement
+    :param nb_edges: Nombre d'arêtes
+    :param nb_repetitions: nombre de fois qu'on calcule la moyenne par itérations
+    :param max_nb_sommets: Maximum de nombre de sommet
+    :param nb_pas: la difference entre deux nb sommets
+    :return: None
+    """
     moyens_glouton = []
     moyens_random = []
 
@@ -98,6 +125,14 @@ def anlayse_nb_iter_by_nb_sommets(nb_train_graph, nb_edges, nb_repetitions, max_
     plt.show()
 
 def anlayse_nb_iter_by_nb_edges(nb_train_graph, nb_sommet, nb_repetitions, max_nb_edges, nb_pas = 5):
+    """
+    :param nb_train_graph: Nombre de graphe d'entraînement
+    :param nb_sommet: Nombre de sommet
+    :param nb_repetitions: nombre de fois qu'on calcule la moyenne par itérations
+    :param max_nb_edges: Maximum de nombre d'arêtes
+    :param nb_pas: la difference entre deux nombre d'arêtes.
+    :return:
+    """
     moyens_glouton = []
     moyens_random = []
 
