@@ -117,9 +117,9 @@ def question_10():
     print("[INFO] Question 10 terminée\n")
 
 def tests_supplementaires():
-    #analyse.anlayse_nb_iter_by_nb_sommets(max_nb_sommets=200, nb_train_graph=8, nb_edges=200, nb_repetitions=10)
-    #analyse.anlayse_nb_iter_by_nb_trainGraph(nb_vertex=50, nb_edges=200, nb_repetitions=10, max_nb_trainGraph=10)
-    analyse.anlayse_nb_iter_by_nb_edges(max_nb_edges=50, nb_train_graph=8, nb_sommet=50, nb_repetitions=20)
+    analyse.anlayse_nb_iter_by_nb_sommets(max_nb_sommets=300, nb_train_graph=3, nb_edges=300, nb_repetitions=10)
+    #analyse.anlayse_nb_iter_by_nb_trainGraph(nb_vertex=30, nb_edges=75, nb_repetitions=40, max_nb_trainGraph=20)
+    #analyse.anlayse_nb_iter_by_nb_edges(max_nb_edges=400, nb_train_graph=3, nb_sommet=50, nb_repetitions=20)
     #analyse.anlayse_nb_iter_by_nb_sommets(max_nb_sommets=200, nb_train_graph=8, nb_edges=200, nb_repetitions=10)
 
 def question_11():
