@@ -118,7 +118,9 @@ def question_10():
 
 def tests_supplementaires():
     #analyse.anlayse_nb_iter_by_nb_sommets(max_nb_sommets=200, nb_train_graph=8, nb_edges=200, nb_repetitions=10)
-    analyse.anlayse_nb_iter_by_nb_edges(max_nb_edges=300, nb_train_graph=8, nb_sommet=200, nb_repetitions=10)
+    #analyse.anlayse_nb_iter_by_nb_trainGraph(nb_vertex=50, nb_edges=200, nb_repetitions=10, max_nb_trainGraph=10)
+    analyse.anlayse_nb_iter_by_nb_edges(max_nb_edges=50, nb_train_graph=8, nb_sommet=50, nb_repetitions=20)
+    #analyse.anlayse_nb_iter_by_nb_sommets(max_nb_sommets=200, nb_train_graph=8, nb_edges=200, nb_repetitions=10)
 
 def question_11():
     """
@@ -140,7 +142,7 @@ def main():
         Fonction principale qui regroupe tous les appels aux fonctions des questions
     """
     # Graph de base
-    my_graph = get_base_graph()
+    """my_graph = get_base_graph()
     # Question 1
     question_1(my_graph)
     # Question 2
@@ -160,9 +162,9 @@ def main():
     # Question 9
     question_9()
     # Question 10
-    question_10()
+    question_10()"""
     # Question 11
-    question_11()
+    #question_11()
     # Tests supplémentaires
     tests_supplementaires()
 
