@@ -1,0 +1,4 @@
+Comparaison Bellman avec prétraitement et Bellman avec un ordre aléatoire
+Nb itération, Bellman avec prétraitement: 2
+Nb itération, Bellman avec un ordre aléatoire: 5
+[INFO] Question 8 terminée

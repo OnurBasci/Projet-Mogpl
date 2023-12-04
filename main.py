@@ -101,10 +101,7 @@ def question_9():
         port `a l'application de l'algorithme de Bellman-Ford bas ́ee simplement sur un ordre tir e de manièere
         aléatoire
     """
-    nb_graphs = 10
-    nb_vertex = 100
-    nb_edges = nb_vertex*2
-    Graph.generate_compare_graph(nb_vertex,nb_edges,nb_graphs)
+    analyse.anlayse_nb_iter_by_random_graph(nb_graphs=100)
     print("[INFO] Question 9 terminée\n")
 
 def question_10():
@@ -160,11 +157,11 @@ def main():
     # Question 9
     question_9()
     # Question 10
-    question_10()
-    # Question 11
-    question_11()
-    # Tests supplémentaires
-    tests_supplementaires()
+    # question_10()
+    # # Question 11
+    # question_11()
+    # # Tests supplémentaires
+    # tests_supplementaires()
 
 if __name__ == "__main__":
     main()
