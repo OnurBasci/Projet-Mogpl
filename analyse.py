@@ -90,8 +90,9 @@ def anlayse_nb_iter_by_nb_trainGraph(nb_vertex, nb_edges, nb_repetitions, max_nb
     print(moyens_random)
     print(moyens_glouton)
     print(nb_train_graph)
-    
+
     plt.style.use("ggplot")
+
     fig, ax = plt.subplots()
 
     # Plot both functions on the same subplot
@@ -105,6 +106,8 @@ def anlayse_nb_iter_by_nb_trainGraph(nb_vertex, nb_edges, nb_repetitions, max_nb
 
     # Display a legend
     ax.legend()
+
+    plt.savefig(f"Comparaison_en_fonction_de_nb_graphe_{max_nb_trainGraph}_{nb_vertex}_{nb_edges}_{nb_repetitions}.png")
 
     # Show the plot
     plt.show()
@@ -129,18 +132,19 @@ def anlayse_nb_iter_by_nb_sommets(nb_train_graph, nb_edges, nb_repetitions, max_
         moyens_glouton.append(moyen_glouton)
         moyens_random.append(moyen_random)
 
-    nb_train_graph = [i for i in range(10, max_nb_sommets, nb_pas)]
+    nb_sommets = [i for i in range(10, max_nb_sommets, nb_pas)]
 
     print(moyens_random)
     print(moyens_glouton)
-    print(nb_train_graph)
-    
+    print(nb_sommets)
+
     plt.style.use("ggplot")
+
     fig, ax = plt.subplots()
 
     # Plot both functions on the same subplot
-    ax.plot(nb_train_graph, moyens_glouton, label="Moyen Glouton", color='blue')
-    ax.plot(nb_train_graph, moyens_random, label="Moyen random", color='red')
+    ax.plot(nb_sommets, moyens_glouton, label="Moyen Glouton", color='blue')
+    ax.plot(nb_sommets, moyens_random, label="Moyen random", color='red')
 
     # Set title and labels
     ax.set_title("Moyens nombre d'itérations en fonction de nombre de sommets")
@@ -149,6 +153,8 @@ def anlayse_nb_iter_by_nb_sommets(nb_train_graph, nb_edges, nb_repetitions, max_
 
     # Display a legend
     ax.legend()
+
+    plt.savefig(f"Comparaison_en_fonction_de_nb_sommets_{max_nb_sommets}_{nb_train_graph}_{nb_edges}_{nb_repetitions}.png")
 
     # Show the plot
     plt.show()
@@ -171,18 +177,20 @@ def anlayse_nb_iter_by_nb_edges(nb_train_graph, nb_sommet, nb_repetitions, max_n
         moyens_glouton.append(moyen_glouton)
         moyens_random.append(moyen_random)
 
-    nb_train_graph = [i for i in range(20, max_nb_edges, nb_pas)]
+    nb_train_graphs = [i for i in range(20, max_nb_edges, nb_pas)]
 
     print(moyens_random)
     print(moyens_glouton)
-    print(nb_train_graph)
+    print(nb_train_graphs)
+
+    plt.style.use("ggplot")
 
     plt.style.use("ggplot")
     fig, ax = plt.subplots()
 
     # Plot both functions on the same subplot
-    ax.plot(nb_train_graph, moyens_glouton, label="Moyen Glouton", color='blue')
-    ax.plot(nb_train_graph, moyens_random, label="Moyen random", color='red')
+    ax.plot(nb_train_graphs, moyens_glouton, label="Moyen Glouton", color='blue')
+    ax.plot(nb_train_graphs, moyens_random, label="Moyen random", color='red')
 
     # Set title and labels
     ax.set_title("Moyens nombre d'itérations en fonction de nombre d'arêtes")
@@ -192,6 +200,9 @@ def anlayse_nb_iter_by_nb_edges(nb_train_graph, nb_sommet, nb_repetitions, max_n
     # Display a legend
     ax.legend()
 
+    plt.savefig(f"Comparaison_en_fonction_de_nb_edges_{max_nb_edges}_{nb_train_graph}_{nb_sommet}_{nb_repetitions}")
+
     # Show the plot
     plt.show()
+
 
