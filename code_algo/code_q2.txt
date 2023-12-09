@@ -1,0 +1,6 @@
+Algorithme Obtenir_Graphe_Inverse(self):
+    graphe_inverse <- Nouveau Graph(self.liste_sommets)
+    liste_aretes_inverse <- [(v, u, w) pour u, v, w dans self.liste_aretes]
+    graphe_inverse.ajouter_aretes(liste_aretes_inverse)
+    Retourner graphe_inverse
+Fin Algorithme

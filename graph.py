@@ -11,19 +11,31 @@ class Graph:
 
         :method_static: 
             - show_graph(graph : 'Graph') -> None
-            - unifiy_paths(path : list,path2 : list,path3 : list,list_vertex : list) -> 'Graph'
+            - unifiy_paths(paths : list,list_vertex : list) -> 'Graph'
+            - generate_graphs_with_random_weights(base_graph : 'Graph', nb_graph:int) -> list['Graph']
             - generate_random_weights(graph : 'Graph') -> 'Graph'
+            - generate_random_order(graph : 'Graph') -> list
+            - generate_random_graph(size_graph : int,nb_edges : int) -> 'Graph'
+            - generate_level_graph(nb_level) -> 'Graph'
+            - generate_compare_graph(size_graph:int,nb_edges:int,nb_graph_to_generate:int) -> (int,int)
+            - compare_graph(graph, nb_graph_to_generate) -> (int,int)
+            - _find_negative_cycle( path : list) -> int
+
 
         :method: 
-            - add_edges(liste_edges : list) -> None
-            - get_precedent(target_vertex : int) -> list
-            - bellman_ford(source_vertex : int , vertex_order : list = None) -> (list,np.ndarray,int)
-            - show_bellmanford_result() -> None
-            - get_sources() -> list
-            - get_puits() -> list
-            - delete_vertex(vertex_to_delete : int) -> None
-            - get_diff_enter_exit(vertex : int) -> int
-            - glouton_fas() -> list
+            - add_edges(self, liste_edges : list) -> None
+            - get_precedent(self, target_vertex : int) -> list
+            - bfs(self,vertex_source:int)->int
+            - bellman_ford(self, source_vertex, vertex_order=None) -> (list,np.ndarray,int,bool)
+            - show_bellmanford_result(self) -> None
+            - get_sources(self) -> list
+            - get_puits(self) -> list
+            - delete_vertex(self, vertex_to_delete : int) -> None
+            - get_diff_enter_exit(self, vertex : int) -> int
+            - glouton_fas(self) -> list
+            - glouton_fas_v2(self) -> list
+            - get_inverse_graph(self) -> 'Graph'
+            
     """
         
     def __init__(self, list_vertex : list):
@@ -173,11 +185,17 @@ class Graph:
             :param size_graph: Le nombre de sommet
             :return: La fonction générée avec des poids aléatoire
         """
-        liste_vertex : list = [i for i in range(size_graph)]
-        liste_edges = [tuple(random.sample(liste_vertex,2)+[1]) for _ in range(nb_edges)]
-        new_graph = Graph(liste_vertex)
-        new_graph.add_edges(liste_edges)
-        new_graph = Graph.generate_random_weights(new_graph)
+        not_accepted = True
+        while not_accepted:
+            liste_vertex : list = [i for i in range(size_graph)]
+            liste_edges = [tuple(random.sample(liste_vertex,2)+[1]) for _ in range(nb_edges)]
+            new_graph = Graph(liste_vertex)
+            new_graph.add_edges(liste_edges)
+            new_graph = Graph.generate_random_weights(new_graph)
+            nb_vertex = new_graph.bfs(0)
+            if nb_vertex >= size_graph//2:
+                not_accepted = False
+        
         return new_graph
 
     @staticmethod
@@ -254,28 +272,20 @@ class Graph:
         """
         source = 0
         # Génération de graphes avec des poids aléatoires
-        print(0)
         train_test_graphs = Graph.generate_graphs_with_random_weights(graph, nb_graph_to_generate)
         train_graphs = train_test_graphs[:nb_graph_to_generate - 1]
         test_graph = train_test_graphs[nb_graph_to_generate - 1]
         # Calcul de l'arborecence
-        print(1)
         paths = [graph.bellman_ford(source, None)[0] for graph in train_graphs]
-        print(2)
         # Unifier les arborecences
         union_graph = Graph.unifiy_paths(paths, graph.list_vertex)
         # Calcul de l'ordre avec glouton_fas
-        print(3)
         order = union_graph.glouton_fas_v2()
         # Génération d'un ordre aléatoire
-        print(4)
         random_order = Graph.generate_random_order(graph)
-        print(5)
         # Calcul de l'arborecence avec l'ordre glouton_fas
         _, dist, nb_iter_glouton, _ = test_graph.bellman_ford(source, order)
-        print(6)
         _, dist_random, nb_iter_random, _ = test_graph.bellman_ford(source, random_order)
-        print(7)
 
         if(dist.any() != dist_random.any()):
             print("[ERREUR]: les distances sont différentes")
@@ -340,6 +350,34 @@ class Graph:
                 if v == target_vertex:
                     liste_precedent.append((vertex,w))
         return liste_precedent
+
+    def bfs(self,vertex_source:int)->int:
+        """
+            Fonction qui parcours le graphe en largeur
+            :param vertex_source: sommet de départ
+            :return: nombre de sommets accessibles depuis le sommet source de départ
+        """
+        # Initialisation des variables
+        visited = [False for _ in range(len(self.list_vertex))]
+        queue = []
+        nb_vertex = 0
+        # On ajoute le sommet de départ à la file
+        queue.append(vertex_source)
+        visited[vertex_source] = True
+        # Tant que la file n'est pas vide
+        while queue:
+            # On récupère le sommet de la file
+            vertex = queue.pop(0)
+            nb_vertex += 1
+            # Pour chaque voisin du sommet
+            for neighbor, _ in self.graph[vertex]:
+                # Si le voisin n'a pas été visité, on l'ajoute à la file
+                if not visited[neighbor]:
+                    queue.append(neighbor)
+                    visited[neighbor] = True
+
+        return nb_vertex-1
+        
 
     def bellman_ford(self, source_vertex, vertex_order=None):
         """

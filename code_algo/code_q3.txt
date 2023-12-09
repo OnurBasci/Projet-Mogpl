@@ -1,0 +1,10 @@
+Algorithme Generer_Graph_Aleatoire(taille_graph: entier, nb_aretes: entier) -> Graph:
+    liste_sommets = [i pour i dans range(taille_graph)]
+    liste_aretes = [tuple(choix_aleatoire(liste_sommets, 2) + [1]) pour _ dans range(nb_aretes)]
+    
+    nouveau_graph <- Nouveau Graph(liste_sommets)
+    nouveau_graph.ajouter_aretes(liste_aretes)
+    nouveau_graph <- Generer_Poids_Aleatoires(nouveau_graph)
+    
+    Retourner nouveau_graph
+Fin Algorithme

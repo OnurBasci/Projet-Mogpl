@@ -1,0 +1,2 @@
+moyenne glouton 2.0
+moyenne random 1216.0

@@ -1,0 +1,30 @@
+Algorithme Bellman_Ford(self, sommet_source, ordre_sommets=None):
+    self.nb_iter <- 0
+    Si ordre_sommets est None:
+        ordre_sommets <- self.liste_sommets
+
+    // Initialiser la distance du sommet source à 0
+    self.distances <- tableau_rempli(len(self.liste_sommets), inf)
+    self.distances[sommet_source] <- 0
+    self.chemins <- [[] pour _ dans range(len(self.liste_sommets))]
+    self.chemins[0] <- [0]
+
+    // Relaxer les arcs répétitivement
+    Pour i de 0 à len(self.liste_sommets) exclus:
+        aucun_mise_a_jour <- Vrai
+        Pour chaque sommet dans ordre_sommets:
+            Pour chaque voisin, poids dans self.graph[sommet]:
+                Si self.distances[sommet] != inf et self.distances[sommet] + poids < self.distances[voisin]:
+                    self.distances[voisin] <- self.distances[sommet] + poids
+                    self.chemins[voisin] <- self.chemins[sommet] + [voisin]
+                    aucun_mise_a_jour <- Faux
+
+        self.nb_iter <- self.nb_iter + 1
+        Si aucun_mise_a_jour:
+            Sortir
+
+    // Vérifier s'il y a un cycle de poids négatif
+    contient_cycle_negatif <- i >= len(self.liste_sommets) - 1
+
+    Retourner self.chemins, self.distances, self.nb_iter, contient_cycle_negatif
+Fin Algorithme

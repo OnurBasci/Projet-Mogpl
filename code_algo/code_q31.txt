@@ -1,0 +1,14 @@
+Algorithme Trouver_Cycle_Negatif(chemin: liste) -> entier:
+    deja_vu <- Dictionnaire()
+    index_cycle <- -1
+    
+    Pour i, valeur dans enumerate(chemin):
+        Si valeur dans deja_vu:
+            index_cycle <- i
+            Sortir du Pour
+        deja_vu[valeur] <- i
+    
+    i_debut_cycle <- deja_vu[chemin[index_cycle]]
+    cycle <- chemin[i_debut_cycle:index_cycle]
+    Retourner cycle
+Fin Algorithme

@@ -1,0 +1,4 @@
+Algorithme Generer_Ordre_Aleatoire(graph: Graph) -> liste:
+    nb_elements <- longueur(graph.liste_sommets)
+    Retourner choix_aleatoire(range(nb_elements), nb_elements)
+Fin Algorithme

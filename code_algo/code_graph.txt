@@ -1,0 +1,10 @@
+Classe Graph:
+    Procédure Initialiser_Graph(liste_sommets):
+        self.liste_sommets <- liste_sommets
+        self.liste_arcs <- []
+        self.ordre_sommets <- None
+        self.graph <- {x: [] pour x dans self.liste_sommets}
+        self.distances <- tableau_rempli(len(self.liste_sommets), inf)
+        self.chemins <- None
+        self.nb_iterations <- 0
+    Fin Procédure

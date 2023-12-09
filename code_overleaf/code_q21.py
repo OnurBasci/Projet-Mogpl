@@ -1,17 +1,16 @@
 def get_inverse_graph(self):
-    """
-        <Ajourter la description>
-        :return: <Ajourter la description>
-    """
-    inverse_graph = Graph(self.list_vertex)
-    inverse_list_edges = [(v, u, w) for u, v, w in self.list_edges]
-    inverse_graph.add_edges(inverse_list_edges)
-    return inverse_graph
+        """
+        :return: Un graphe avec les poids inversés
+        """
+        inverse_graph = Graph(self.list_vertex)
+        inverse_list_edges = [(v, u, w) for u, v, w in self.list_edges]
+        inverse_graph.add_edges(inverse_list_edges)
+        return inverse_graph
 
 def get_puits(self):
     """
-        <Ajourter la description>
-        :return: <Ajourter la description>
+        Méthode qui calcule les puits dans l'attribut graphe i.e. les sommet qui n'ont pas de voisins mais des précedents
+        :return: Une liste de précedents
     """
     puits = []
     for vertex in self.graph.keys():
@@ -22,9 +21,9 @@ def get_puits(self):
 
 def delete_vertex(self, vertex_to_delete : int):
     """
-        <Ajourter la description>
-        :param vertex_to_delete: <Ajourter la description>
-        :return: <Ajourter la description>
+        Methode qui supprime un sommet
+        :param vertex_to_delete: sommet à supprimer
+        :return: None
     """
     #remove vertex
     del self.graph[vertex_to_delete]
@@ -36,9 +35,9 @@ def delete_vertex(self, vertex_to_delete : int):
 
 def get_diff_enter_exit(self, vertex : int):
     """
-        <Ajourter la description>
-        :param vertex: <Ajourter la description>
-        :return: <Ajourter la description>
+        Méthode calculant la difference entre les valeurs entrant et la valeur sortant d'un sommet dans l'attribut graph
+        :param vertex: Le sommet à calculer la difference
+        :return: La différence
     """
     if not(vertex in self.graph.keys()):
         return -math.inf

@@ -1,0 +1,18 @@
+Algorithme Unifier_Chemins(chemins: liste, liste_sommets: liste) -> Graph:
+    liste_aretes <- Liste()
+    aretes_ajoutees <- Dictionnaire()
+
+    Pour tout_les_chemins dans chemins:
+        Pour p dans tout_les_chemins:
+            ajouter_arete_depuis_chemin(p)
+
+    nouveau_graph <- Nouveau Graph(liste_sommets)
+    nouveau_graph.ajouter_aretes(liste_aretes)
+
+    Retourner nouveau_graph
+Fin Algorithme
+
+
+
+
+

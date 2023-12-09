@@ -37,7 +37,6 @@ def question_3(graph : Graph) -> (Graph,Graph,Graph):
         A partir de G construire 3 graphes ponder ́es G1,G2,G3 ainsi que le graphe test H.
     """
     g1, g2, g3, H = Graph.generate_graphs_with_random_weights(graph,4)
-
     print("[INFO] Question 3 terminée\n")
 
     return g1, g2, g3, H
@@ -101,30 +100,29 @@ def question_9():
         port `a l'application de l'algorithme de Bellman-Ford bas ́ee simplement sur un ordre tir e de manièere
         aléatoire
     """
-    analyse.anlayse_nb_iter_by_random_graph(nb_graphs=100)
+    analyse.anlayse_nb_iter_by_random_graph(nb_graphs=100,nb_vertex=100)
     print("[INFO] Question 9 terminée\n")
 
 def question_10():
     """
-    Comment le nombre de graphes que l’on utilise pour apprendre l’ordre influence le
-    nombre d’it´erations ?
+    Comment le nombre de graphes que l'on utilise pour apprendre l'ordre influence le
+    nombre d'itérations ?
     """
     print("Question 10")
-    analyse.anlayse_nb_iter_by_nb_trainGraph(nb_vertex=50, nb_edges=200, nb_repetitions=10, max_nb_trainGraph=10)
+    analyse.anlayse_nb_iter_by_nb_trainGraph(nb_vertex=30, nb_edges=75, nb_repetitions=40, max_nb_trainGraph=20)
+
     print("[INFO] Question 10 terminée\n")
 
 def tests_supplementaires():
-    analyse.anlayse_nb_iter_by_nb_sommets(max_nb_sommets=300, nb_train_graph=3, nb_edges=300, nb_repetitions=10)
-    #analyse.anlayse_nb_iter_by_nb_trainGraph(nb_vertex=30, nb_edges=75, nb_repetitions=40, max_nb_trainGraph=20)
-    #analyse.anlayse_nb_iter_by_nb_edges(max_nb_edges=400, nb_train_graph=3, nb_sommet=50, nb_repetitions=20)
-    #analyse.anlayse_nb_iter_by_nb_sommets(max_nb_sommets=200, nb_train_graph=8, nb_edges=200, nb_repetitions=10)
+    analyse.anlayse_nb_iter_by_nb_sommets(max_nb_sommets=200, nb_train_graph=3, nb_edges=300, nb_repetitions=10)
+    analyse.anlayse_nb_iter_by_nb_edges(max_nb_edges=400, nb_train_graph=3, nb_sommet=50, nb_repetitions=20)
 
 def question_11():
     """
-     Soit la famille d’instances suivantes : un graphe par niveau avec 4 sommets par
+     Soit la famille d'instances suivantes : un graphe par niveau avec 4 sommets par
     niveau et 2500 niveaux o`u les sommets du niveau j précédent tous les sommets du niveau j + 1
     et où pour chaque arc on a un poids tiré de manière uniforme et aléatoire parmi les entiers dans
-    l’intervalle [−10, 10]. Est-ce que la méthode avec prétraitement est adéquate ? Justifier votre
+    l'intervalle [-10, 10]. Est-ce que la méthode avec prétraitement est adéquate ? Justifier votre
     réponse
     """
     level_graphe = Graph.generate_level_graph(2500)
@@ -133,13 +131,12 @@ def question_11():
 
 
 
-
 def main():
     """
         Fonction principale qui regroupe tous les appels aux fonctions des questions
     """
     # Graph de base
-    """my_graph = get_base_graph()
+    my_graph = get_base_graph()
     # Question 1
     question_1(my_graph)
     # Question 2
@@ -159,9 +156,9 @@ def main():
     # Question 9
     question_9()
     # Question 10
-    question_10()"""
+    question_10()
     # Question 11
-    #question_11()
+    question_11()
     # Tests supplémentaires
     tests_supplementaires()
 

@@ -1,0 +1,14 @@
+Algorithme Generer_Graph_Niveaux(nb_niveaux):
+    graph_niveaux <- Nouveau Graph([i pour i dans range(nb_niveaux * 4)])
+    aretes <- Liste()
+    Pour i de 0 à nb_niveaux-2:
+        sommets_niveau_suivant <- [(i*4)+4+k pour k de 0 à 3]
+        Pour j de 0 à 3:
+            Pour k dans sommets_niveau_suivant:
+                Ajouter (((i*4)+j), k, 1) à aretes
+
+    graph_niveaux.ajouter_aretes(aretes)
+    graph_niveaux <- Generer_Poids_Aleatoires(graph_niveaux)
+
+    Retourner graph_niveaux
+Fin Algorithme
