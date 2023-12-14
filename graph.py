@@ -394,7 +394,7 @@ class Graph:
         self.distances = np.full(len(self.list_vertex), np.inf)
         self.distances[source_vertex] = 0
         self.paths = [[] for _ in range(len(self.list_vertex))]
-        self.paths[0] = [0]
+        self.paths[source_vertex] = [source_vertex]
 
         # Relaxer les arcs répétitivement
         for i in range(len(self.list_vertex)):
